@@ -40,7 +40,7 @@ Then visit http://localhost:4173. This serving command is provided for local use
 - `src/engine.ts`: types, scenario constants, seeded clock, legal actions, offline decisions, events, knowledge views, validation, compact saves, and replay.
 - `src/ui.ts`: map, resident inspector, journal filters, controls, interventions, and file handling.
 - `src/style.css`: responsive illustrated map and interface; reduced-motion support.
-- `tests/engine.test.mjs`: 21 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
+- `tests/engine.test.mjs`: 33 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
 - `scripts/build.mjs`: static asset copying and standalone HTML packaging.
 
 Actions take one or two ticks. The engine queues and completes them in stable resident order. Money transfers between residents and the town; meals and supplies have recorded external sources or consumption. Workshop repair uses supplies. Garden harvests stop during storms. The courier visits the garden, earns Emi’s trust through conversations, loads up to three reserve meals, then travels to the market and unloads them. Those meals remain in his inventory during travel and can be eaten if he gets hungry. Residents become uncomfortable when hungry; health bottoms out at 30 and nobody dies.
@@ -51,7 +51,7 @@ Saves are schema version 1. The compact belief pool deduplicates repeated memori
 
 ## Validation and limits
 
-TypeScript checks, static build, all 21 engine tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
+TypeScript checks, static build, all 33 engine tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
 
 This prototype uses transparent offline rules, not an LLM. Personalities affect priorities, but policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
 
@@ -77,3 +77,22 @@ Pausing wages allows productive work to continue without pay; normal wages remai
 **Compare two days** runs two isolated 24-hour trials from the original world snapshot. One receives an eight-hour shipment delay. By default both start with two market meals, an empty reserve, and hungry residents carrying no meals. Turn off the shortage option to use the original supplies. The live world and its history are unchanged. The table reports meals eaten/shared, conversations, market food, budget, repair progress, and resident-hours at hunger 70 or above.
 
 Existing schema-version-1 saves remain loadable. Old recorded history replays as saved; future ticks use the new policies. Version 1.1’s build, TypeScript checks, and all 21 tests pass. Browser appearance and interaction of version 1.0 were user-confirmed; version 1.1 visual/browser interaction has not been verified here.
+
+## Version 1.2 — the cold-store crisis
+
+Open the latest standalone HTML and click **Storm & cold-store outage**, then **Play**. The storm pauses garden harvests and damages the workshop refrigerator that protects the market’s inventory. The crisis panel shows repair progress, spoiled meals, spare parts, and each resident’s current knowledge. Filter the journal to **Cold-store crisis** to follow the story.
+
+- The market alarm display and workshop reveal the failure locally. Elsewhere, residents must receive testimony. Knowing about the weather does not reveal the equipment failure.
+- Ada warns neighbors about food at risk and shares her buffer. Dev routes learned news to Ben, Finn, Emi, and Cleo. He can carry emergency food while repairs are pending.
+- Ben requests funding at town hall. Finn buys three refrigerator parts for 18 coins only after learning of the failure and while preserving a 40-coin reserve. If the budget is too low, a donation can help.
+- Ben performs three repair actions at the workshop (34%, 68%, then 100%). Each consumes one refrigerator part and one general workshop supply. Ordinary supply procurement still works if needed.
+- Emi releases emergency reserve meals to Dev after learning of the failure and at least one shared moment, instead of the usual two. Both must be at the garden.
+- Cleo visits the market after hearing the news, shares food with hungry neighbors, and can help co-located residents recover health.
+- Every simulated hour, up to two market meals spoil while the refrigerator is broken. The spoilage check happens before action completions for that tick. Personal meals and the garden reserve are outside this simplified spoilage mechanic. Losses never exceed market stock.
+- Repairs stop further spoilage; earlier losses remain. Repeated storms during an unresolved outage extend the weather without resetting repair progress. A new storm after repairs starts a distinct incident and retains unused parts.
+
+The panel is explicitly the player’s all-seeing view. Repair news spreads through observation and conversation; testimony retains the original observation time, preventing late reports from replacing newer knowledge. Critical outage reports remain shareable even when routine memories push them out of the recent-message window.
+
+Version 1.2 passes 33 tests, TypeScript checking, and the standalone build. Tests cover the full repair sequence, balanced purchases/consumption, privacy, stalled funding and donation recovery, spoilage, repeated storms, invalid actions, save/replay, memory retention, and stale testimony. Earlier standalone versions were user-confirmed in the browser; this new UI has not received automated browser/visual QA.
+
+Existing version-1 saves still load and do not gain an outage spontaneously. New storms use the new mechanics; old event history replays unchanged. This is a deterministic story mechanic: procurement is immediate, funding uses a fixed reserve rule, trust counts shared moments, and health recovery is simplified. No model calls or paid services are involved.

@@ -1,16 +1,33 @@
-export const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76, bufferMeals: 3, trustToRelease: 2, wagePauseAt: 40, wageResumeAt: 60, supplyCost: 12, supplyBatch: 6 };
+export const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76, bufferMeals: 3, trustToRelease: 2, wagePauseAt: 40, wageResumeAt: 60, supplyCost: 12, supplyBatch: 6, fridgeCost: 18, fridgeParts: 3, fridgeRepairStep: 34, spoilInterval: 4, spoilBatch: 2 };
 export const places = { grocer: { name: 'Ada’s Market', x: 24, y: 28, icon: '🥕' }, clinic: { name: 'Cleo’s Clinic', x: 76, y: 27, icon: '✚' }, workshop: { name: 'The Workshop', x: 78, y: 67, icon: '⚒' }, garden: { name: 'Community Garden', x: 23, y: 68, icon: '🌱' }, hall: { name: 'Town Hall', x: 50, y: 18, icon: '⚑' }, square: { name: 'Village Square', x: 50, y: 49, icon: '⛲' }, 'ada-home': { name: 'Ada’s home', x: 12, y: 12, icon: '⌂' }, 'ben-home': { name: 'Ben’s home', x: 88, y: 84, icon: '⌂' }, 'cleo-home': { name: 'Cleo’s home', x: 88, y: 12, icon: '⌂' }, 'dev-home': { name: 'Dev’s home', x: 55, y: 84, icon: '⌂' }, 'emi-home': { name: 'Emi’s home', x: 12, y: 84, icon: '⌂' }, 'finn-home': { name: 'Finn’s home', x: 38, y: 8, icon: '⌂' } };
 export function create(seed = 42) {
     const cast = [['ada', 'Ada', 'Grocer', 'Cautious', 'Keep food available', 'grocer', '#d48348'], ['ben', 'Ben', 'Mechanic', 'Practical', 'Repair workshop equipment', 'workshop', '#607da6'], ['cleo', 'Cleo', 'Clinician', 'Generous', 'Keep residents healthy', 'clinic', '#b8798a'], ['dev', 'Dev', 'Courier', 'Sociable', 'Deliver supplies reliably', 'square', '#a48c43'], ['emi', 'Emi', 'Gardener', 'Independent', 'Grow a food reserve', 'garden', '#729361'], ['finn', 'Finn', 'Clerk', 'Orderly', 'Balance the town budget', 'hall', '#8c78aa']];
     const world = { tick: 28, rng: seed >>> 0, treasury: scenario.startingTreasury, shopFood: scenario.startingFood, reserve: 6, supplies: scenario.startingSupplies, repaired: 0, stormUntil: 0, shipmentDue: 40, wagesPaused: false, residents: cast.map(([id, name, role, trait, goal, job, color]) => ({ id, name, role, trait, goal, color, home: `${id}-home`, job: job, location: `${id}-home`, money: 24, food: 2, hunger: 20, energy: 90, health: 100, busyUntil: 0, pending: null, status: 'Starting the morning', beliefs: [], relationships: {}, sharedFacts: [], lastDecision: 'A new morning. Time to see what the day brings.' })) };
     return { schemaVersion: 1, initial: structuredClone(world), world, events: [] };
 }
-const total = (w) => ({ money: w.treasury + w.residents.reduce((n, r) => n + r.money, 0), food: w.shopFood + w.reserve + w.residents.reduce((n, r) => n + r.food, 0), supplies: w.supplies });
+const total = (w) => ({ money: w.treasury + w.residents.reduce((n, r) => n + r.money, 0), food: w.shopFood + w.reserve + w.residents.reduce((n, r) => n + r.food, 0), supplies: w.supplies + (w.fridge?.parts ?? 0) });
 function emit(g, before, actor, type, text, recipients, source, fact) {
     const a = total(before), b = total(g.world), id = `e${g.events.length + 1}`;
     for (const r of g.world.residents.filter(r => recipients.includes(r.id)))
-        r.beliefs.push({ id: `${id}-${r.id}`, text, tick: g.world.tick, provenance: 'observation', source: actor, eventId: id, ...fact });
-    g.events.push({ id, tick: g.world.tick, actor, type, text, recipients, effects: { money: b.money - a.money, food: b.food - a.food, supplies: b.supplies - a.supplies, ...(source ? { source } : {}) }, after: { ...g.world, residents: g.world.residents.map(r => ({ ...r, pending: r.pending ? { ...r.pending } : null, beliefs: r.beliefs.slice(), relationships: { ...r.relationships } })) } });
+        r.beliefs.push({ id: `${id}-${r.id}`, text, tick: g.world.tick, provenance: 'observation', source: actor, eventId: id, observedTick: g.world.tick, ...fact });
+    g.events.push({ id, tick: g.world.tick, actor, type, text, recipients, effects: { money: b.money - a.money, food: b.food - a.food, supplies: b.supplies - a.supplies, ...(source ? { source } : {}) }, after: { ...g.world, ...(g.world.fridge ? { fridge: { ...g.world.fridge } } : {}), residents: g.world.residents.map(r => ({ ...r, pending: r.pending ? { ...r.pending } : null, beliefs: r.beliefs.slice(), relationships: { ...r.relationships } })) } });
+}
+export function fridgeKnowledge(r) {
+    return r.beliefs.filter(b => b.topic === 'fridge').reduce((latest, b) => !latest || (b.observedTick ?? b.tick) >= (latest.observedTick ?? latest.tick) ? b : latest, undefined);
+}
+const emergency = (r) => { const b = fridgeKnowledge(r); return !!b && (b.amount ?? 100) < 100; };
+function fridgeFact(w) {
+    return { topic: 'fridge', amount: w.fridge.progress, incident: w.fridge.id, parts: w.fridge.parts };
+}
+function noticeFridge(g, r) {
+    const f = g.world.fridge;
+    if (!f || !['grocer', 'workshop'].includes(r.location))
+        return;
+    const previous = fridgeKnowledge(r);
+    if (previous?.incident === f.id && previous.amount === f.progress && previous.parts === f.parts)
+        return;
+    const before = structuredClone(g.world);
+    emit(g, before, 'world', 'crisis', `${r.name} checked the cold-store ${r.location === 'grocer' ? 'alarm display' : 'refrigerator'}: ${f.progress === 100 ? 'repaired' : 'broken; market food is at risk'}. Repair ${f.progress}%; ${f.parts} spare parts.`, [r.id], undefined, fridgeFact(g.world));
 }
 export function legal(w, r) {
     if (r.pending)
@@ -29,12 +46,18 @@ export function legal(w, r) {
     if (open && r.id === 'finn' && r.location === 'hall') {
         if ((!w.wagesPaused && w.treasury < scenario.wagePauseAt) || (w.wagesPaused && w.treasury >= scenario.wageResumeAt))
             actions.push({ actor: r.id, kind: 'work', target: 'budget-review', duration: 1 });
-        if (w.supplies === 0 && w.repaired < 100 && w.treasury >= scenario.wagePauseAt + scenario.supplyCost && r.beliefs.some(b => b.topic === 'supplies' && b.amount === 0 && w.tick - b.tick <= 32))
+        if (w.supplies === 0 && (w.repaired < 100 || (w.fridge?.progress ?? 100) < 100) && w.treasury >= scenario.wagePauseAt + scenario.supplyCost && r.beliefs.some(b => b.topic === 'supplies' && b.amount === 0 && w.tick - b.tick <= 32))
             actions.push({ actor: r.id, kind: 'work', target: 'fund-supplies', duration: 2 });
     }
+    if (open && r.id === 'finn' && r.location === 'hall' && w.fridge && w.fridge.progress < 100 && w.fridge.parts < Math.ceil((100 - w.fridge.progress) / scenario.fridgeRepairStep) && w.treasury >= scenario.wagePauseAt + scenario.fridgeCost && emergency(r))
+        actions.push({ actor: r.id, kind: 'work', target: 'fund-fridge', duration: 2 });
+    if (r.id === 'ben' && r.location === 'workshop' && w.fridge && w.fridge.progress < 100 && w.fridge.parts > 0 && w.supplies > 0)
+        actions.push({ actor: r.id, kind: 'work', target: 'repair-fridge', duration: 2 });
+    if (r.id === 'cleo' && r.location === 'grocer' && emergency(r) && w.residents.some(o => o.location === r.location && o.health < 100))
+        actions.push({ actor: r.id, kind: 'work', target: 'triage', duration: 2 });
     if (open && r.id === 'dev') {
         const gardener = w.residents.find(o => o.id === 'emi' && o.location === r.location);
-        if (r.location === 'garden' && gardener && (gardener.relationships[r.id] ?? 0) >= scenario.trustToRelease && w.reserve > 0 && r.food <= 2)
+        if (r.location === 'garden' && gardener && (gardener.relationships[r.id] ?? 0) >= (emergency(gardener) ? 1 : scenario.trustToRelease) && w.reserve > 0 && r.food <= 2)
             actions.push({ actor: r.id, kind: 'work', target: 'collect', duration: 2 });
         if (r.location === 'grocer' && r.food > 2)
             actions.push({ actor: r.id, kind: 'work', target: 'deliver', duration: 2 });
@@ -42,7 +65,11 @@ export function legal(w, r) {
     for (const other of w.residents.filter(o => o.id !== r.id && o.location === r.location)) {
         if (r.food > 0)
             actions.push({ actor: r.id, kind: 'give', target: other.id, duration: 1 });
-        for (const fact of r.beliefs.filter(b => (b.topic !== undefined || !b.text.includes(' told ')) && b.text.length < 300 && !(r.sharedFacts ?? []).includes(`${other.id}:${b.eventId}`)).slice(-12))
+        const shareable = r.beliefs.filter(b => (b.topic !== undefined || !b.text.includes(' told ')) && b.text.length < 300 && !(r.sharedFacts ?? []).includes(`${other.id}:${b.eventId}`));
+        const facts = shareable.slice(-12), cold = fridgeKnowledge(r);
+        if (cold && shareable.includes(cold) && !facts.includes(cold))
+            facts.push(cold);
+        for (const fact of facts)
             actions.push({ actor: r.id, kind: 'talk', target: other.id, fact: fact.id, duration: 1 });
     }
     return actions;
@@ -72,6 +99,8 @@ export function view(w, r) {
         local.supplies = w.supplies;
         local.repaired = w.repaired;
     }
+    if (w.fridge && ['grocer', 'workshop'].includes(r.location))
+        local.fridge = { progress: w.fridge.progress, parts: w.fridge.parts };
     if (r.location === 'hall') {
         local.budget = w.treasury;
         local.wagesPaused = w.wagesPaused ?? false;
@@ -94,6 +123,76 @@ export function decide(v) {
     const hour = v.tick % 96;
     if (hour < 28 || hour >= 80)
         return r.location === r.home ? d(pick('rest'), 'The day is over. Time to rest.') : move(r.home, 'Time to head home.');
+    const crisis = fridgeKnowledge(r), active = emergency(r);
+    const crisisTalk = (target) => { if (!crisis || v.tick - (r.lastTalkTick ?? -100) < 4)
+        return undefined; return v.legalActions.find(a => a.kind === 'talk' && (!target || a.target === target) && r.beliefs.find(b => b.id === a.fact)?.eventId === crisis.eventId); };
+    if (active && r.id === 'ben') {
+        if (pick('work', 'repair-fridge'))
+            return d(pick('work', 'repair-fridge'), 'Repair the refrigerator before more market food spoils.');
+        if (r.location === 'workshop' && (v.local.supplies === 0 || (v.local.fridge?.parts ?? 0) === 0))
+            return move('hall', 'The cold store needs parts and supplies. Take the repair request to Finn.');
+        if (r.location === 'hall') {
+            if ((crisis?.parts ?? 0) > 0) {
+                const supplies = talk('finn', 'supplies');
+                if (supplies)
+                    return d(supplies, 'The parts are funded, but Finn also needs my supply report.');
+                return move('workshop', 'The parts were funded. Return to the refrigerator.');
+            }
+            const request = crisisTalk('finn');
+            if (request)
+                return d(request, 'Tell Finn about the broken refrigerator and food at risk.');
+            return d(pick('wait'), 'Wait for Finn to fund refrigerator parts.');
+        }
+        return move('workshop', 'I heard about the refrigerator. Inspect it and start repairs.');
+    }
+    if (active && r.id === 'finn' && pick('work', 'fund-fridge'))
+        return d(pick('work', 'fund-fridge'), 'The food is at risk. Fund refrigerator parts while protecting the town reserve.');
+    if (r.id === 'dev' && r.food > 2) {
+        if (pick('work', 'deliver'))
+            return d(pick('work', 'deliver'), 'Deliver these reserve meals before carrying more news.');
+        if (r.location !== 'grocer')
+            return move('grocer', 'Take the emergency meals to the market.');
+    }
+    if (active && r.id === 'dev' && pick('work', 'collect') && (r.sharedFacts ?? []).includes(`emi:fridge:${crisis?.incident}:broken`))
+        return d(pick('work', 'collect'), 'Emi heard the news and agreed to release emergency reserve meals.');
+    if (crisis && r.id === 'dev') {
+        const phase = active ? 'broken' : 'resolved';
+        for (const [id, place] of [['ben', 'workshop'], ['finn', 'hall'], ['emi', 'garden'], ['cleo', 'clinic']]) {
+            if ((r.sharedFacts ?? []).includes(`${id}:fridge:${crisis.incident}:${phase}`))
+                continue;
+            const news = crisisTalk(id);
+            if (news)
+                return d(news, active ? `Tell ${id} what I learned about the cold-store failure.` : `Tell ${id} that the refrigerator is repaired.`);
+            if (v.nearby.some(o => o.id === id))
+                return d(pick('wait'), 'Give my neighbor a moment before passing on the news.');
+            if (r.location === place) {
+                if (id === 'ben')
+                    return move('hall', 'Ben may have gone to Finn. Look for him at town hall.');
+                if (id === 'cleo')
+                    return move('grocer', 'Cleo may be helping at the market. Check there.');
+                return d(pick('wait'), `Wait for ${id} so the news reaches them.`);
+            }
+            // Ben often visits town hall for funding; check there rather than chasing his unseen location.
+            if (id === 'cleo' && r.location === 'grocer')
+                return move('clinic', 'Check the clinic for Cleo.');
+            if (id === 'ben' && r.location === 'hall')
+                return move('workshop', 'Check the workshop for Ben.');
+            return move(place, active ? 'Carry the cold-store news to the next neighbor.' : 'Carry the repair news to the next neighbor.');
+        }
+    }
+    if (active && r.id === 'ada') {
+        const warning = crisisTalk('dev') ?? crisisTalk();
+        if (warning)
+            return d(warning, `Warn a neighbor: ${v.local.marketFood ?? 'the'} market meals may spoil.`);
+        if (hungry && r.food > 1 && pick('give', hungry.id))
+            return d(pick('give', hungry.id), 'Use my food buffer to help a hungry neighbor during the outage.');
+    }
+    if (active && r.id === 'cleo') {
+        if (pick('work', 'triage'))
+            return d(pick('work', 'triage'), 'Check on neighbors affected by the food shortage.');
+        if (r.location !== 'grocer')
+            return move('grocer', 'People may be hungry at the market. Go where I can help.');
+    }
     if (r.id === 'finn' && r.location === 'hall') {
         if (pick('work', 'budget-review'))
             return d(pick('work', 'budget-review'), v.local.wagesPaused ? 'The budget has recovered. Resume wages.' : 'The budget is thin. Pause wages so the town can keep a reserve.');
@@ -211,13 +310,43 @@ function complete(g, r) {
         text = `${r.name} took a little time to rest.`;
     }
     if (a.kind === 'work') {
-        if (a.target === 'budget-review') {
+        if (a.target === 'repair-fridge') {
+            const f = w.fridge;
+            if (r.id === 'ben' && r.location === 'workshop' && f && f.progress < 100 && f.parts > 0 && w.supplies > 0) {
+                f.parts--;
+                w.supplies--;
+                f.progress = Math.min(100, f.progress + scenario.fridgeRepairStep);
+                source = 'Refrigerator repair materials consumed';
+                if (f.progress === 100)
+                    f.resolvedTick = w.tick;
+                text = f.progress === 100 ? 'Ben repaired the cold-store refrigerator. Market food is safe from further outage spoilage.' : `Ben repaired the cold-store refrigerator to ${f.progress}%.`;
+                fact = fridgeFact(w);
+            }
+        }
+        else if (a.target === 'fund-fridge') {
+            const f = w.fridge;
+            if (r.id === 'finn' && r.location === 'hall' && f && f.progress < 100 && w.treasury >= scenario.wagePauseAt + scenario.fridgeCost && f.parts < Math.ceil((100 - f.progress) / scenario.fridgeRepairStep)) {
+                w.treasury -= scenario.fridgeCost;
+                f.parts += scenario.fridgeParts;
+                source = 'External refrigerator parts purchase';
+                text = `Finn funded ${scenario.fridgeParts} refrigerator parts for ${scenario.fridgeCost} coins after hearing the repair request.`;
+                fact = fridgeFact(w);
+            }
+        }
+        else if (a.target === 'triage') {
+            if (r.id === 'cleo' && r.location === 'grocer') {
+                for (const other of w.residents.filter(o => o.location === 'grocer'))
+                    other.health = Math.min(100, other.health + 8);
+                text = 'Cleo checked on neighbors at the market and helped them recover.';
+            }
+        }
+        else if (a.target === 'budget-review') {
             w.wagesPaused = w.treasury < scenario.wageResumeAt;
             text = `Finn reviewed the budget: wages ${w.wagesPaused ? 'paused to protect the reserve' : 'resumed after the budget recovered'}.`;
             fact = { topic: 'budget', amount: w.treasury };
         }
         else if (a.target === 'fund-supplies') {
-            if (w.supplies === 0 && w.repaired < 100 && w.treasury >= scenario.wagePauseAt + scenario.supplyCost) {
+            if (w.supplies === 0 && (w.repaired < 100 || (w.fridge?.progress ?? 100) < 100) && w.treasury >= scenario.wagePauseAt + scenario.supplyCost) {
                 w.treasury -= scenario.supplyCost;
                 w.supplies += scenario.supplyBatch;
                 text = `Finn ordered ${scenario.supplyBatch} workshop supplies for ${scenario.supplyCost} coins from an outside supplier.`;
@@ -227,7 +356,7 @@ function complete(g, r) {
         }
         else if (a.target === 'collect') {
             const gardener = w.residents.find(o => o.id === 'emi' && o.location === r.location);
-            if (r.location === 'garden' && gardener && (gardener.relationships[r.id] ?? 0) >= scenario.trustToRelease && r.food <= 2) {
+            if (r.location === 'garden' && gardener && (gardener.relationships[r.id] ?? 0) >= (emergency(gardener) ? 1 : scenario.trustToRelease) && r.food <= 2) {
                 const amount = Math.min(3, w.reserve);
                 w.reserve -= amount;
                 r.food += amount;
@@ -289,8 +418,10 @@ function complete(g, r) {
             if (a.kind === 'talk') {
                 const fact = r.beliefs.find(b => b.id === a.fact);
                 if (fact) {
-                    other.beliefs.push({ id: `b${g.events.length + 1}-${other.id}`, text: fact.text, tick: w.tick, provenance: 'testimony', source: r.id, eventId: fact.eventId, ...(fact.topic ? { topic: fact.topic } : {}), ...(fact.amount !== undefined ? { amount: fact.amount } : {}) });
+                    other.beliefs.push({ id: `b${g.events.length + 1}-${other.id}`, text: fact.text, tick: w.tick, provenance: 'testimony', source: r.id, eventId: fact.eventId, ...(fact.topic ? { topic: fact.topic } : {}), ...(fact.amount !== undefined ? { amount: fact.amount } : {}), ...(fact.incident ? { incident: fact.incident } : {}), ...(fact.parts !== undefined ? { parts: fact.parts } : {}), observedTick: fact.observedTick ?? fact.tick });
                     r.sharedFacts = [...(r.sharedFacts ?? []), `${other.id}:${fact.eventId}`];
+                    if (fact.topic === 'fridge')
+                        r.sharedFacts.push(`${other.id}:fridge:${fact.incident}:${(fact.amount ?? 100) < 100 ? 'broken' : 'resolved'}`);
                     r.lastTalkTick = w.tick;
                     text = `${r.name} told ${other.name}: “${fact.text}”`;
                 }
@@ -323,10 +454,20 @@ export function step(g) {
         w.shipmentDue += 96;
         emit(g, before, 'world', 'shipment', 'A shipment brought 24 meals to the market.', w.residents.filter(r => r.location === 'grocer' || r.id === 'dev').map(r => r.id), 'External food shipment', { topic: 'shipment', amount: scenario.shipment });
     }
+    const f = w.fridge;
+    if (f && f.progress < 100 && w.tick >= f.nextSpoilTick) {
+        before = structuredClone(w);
+        const lost = Math.min(scenario.spoilBatch, w.shopFood);
+        w.shopFood -= lost;
+        f.spoiled += lost;
+        f.nextSpoilTick = w.tick + scenario.spoilInterval;
+        emit(g, before, 'world', 'spoilage', lost ? `${lost} market meals spoiled while the cold-store refrigerator was broken.` : 'The cold store is still broken; no market meals remain to spoil.', w.residents.filter(r => ['grocer', 'workshop'].includes(r.location)).map(r => r.id), lost ? 'Outage food spoilage' : undefined, fridgeFact(w));
+    }
     for (const r of w.residents) {
         if (r.pending && r.busyUntil <= w.tick)
             complete(g, r);
         if (!r.pending) {
+            noticeFridge(g, r);
             const decision = decide(view(w, r));
             act(g, decision.action, decision.reason);
         }
@@ -348,9 +489,24 @@ export function intervene(g, kind) {
         text = 'An anonymous donor added 100 coins to the town budget.';
     }
     emit(g, before, 'player', kind, text, kind === 'storm' ? w.residents.map(r => r.id) : w.residents.filter(r => r.location === (kind === 'delay' ? 'grocer' : 'hall')).map(r => r.id), kind === 'donation' ? 'External anonymous donation' : undefined, { topic: kind === 'delay' ? 'shipment' : kind, amount: kind === 'donation' ? 100 : kind === 'delay' ? w.shipmentDue : w.stormUntil });
+    if (kind === 'storm' && (!w.fridge || w.fridge.progress === 100)) {
+        const previous = structuredClone(w);
+        w.fridge = { id: `cold-${g.events.length + 1}`, startedTick: w.tick, progress: 0, parts: w.fridge?.parts ?? 0, spoiled: 0, nextSpoilTick: w.tick + scenario.spoilInterval };
+        emit(g, previous, 'world', 'crisis', 'A storm damaged the workshop refrigerator that protects the market food. Parts and repairs are needed.', w.residents.filter(r => ['grocer', 'workshop'].includes(r.location)).map(r => r.id), undefined, fridgeFact(w));
+    }
 }
 export function replay(g, count = g.events.length) { return structuredClone(count ? g.events[count - 1].after : g.initial); }
 function assertWorld(w) {
+    if (w?.fridge) {
+        const f = w.fridge;
+        if (typeof f.id !== 'string' || !f.id.startsWith('cold-'))
+            throw Error('Invalid refrigerator incident.');
+        for (const k of ['startedTick', 'progress', 'parts', 'spoiled', 'nextSpoilTick'])
+            if (!Number.isSafeInteger(f[k]) || f[k] < 0)
+                throw Error('Invalid refrigerator state.');
+        if (f.progress > 100 || f.startedTick > w.tick || (f.resolvedTick !== undefined && (!Number.isSafeInteger(f.resolvedTick) || f.resolvedTick < f.startedTick || f.resolvedTick > w.tick || f.progress !== 100)))
+            throw Error('Invalid refrigerator repair.');
+    }
     if (w?.wagesPaused !== undefined && typeof w.wagesPaused !== 'boolean')
         throw Error('Invalid wage policy.');
     if (!w || !Number.isSafeInteger(w.tick) || w.tick < 0 || !Number.isSafeInteger(w.rng) || w.rng < 0 || w.rng > 4294967295)
@@ -374,8 +530,13 @@ function assertWorld(w) {
             if (!b || typeof b.id !== 'string' || typeof b.text !== 'string' || typeof b.source !== 'string' || typeof b.eventId !== 'string' || !Number.isSafeInteger(b.tick) || !['observation', 'testimony', 'inference'].includes(b.provenance))
                 throw Error('Invalid belief provenance.');
         for (const b of r.beliefs) {
-            if (b.topic !== undefined && !['food', 'supplies', 'budget', 'shipment', 'storm', 'donation', 'harvest'].includes(b.topic))
+            if (b.topic !== undefined && !['food', 'supplies', 'budget', 'shipment', 'storm', 'donation', 'harvest', 'fridge'].includes(b.topic))
                 throw Error('Invalid memory topic.');
+            if (b.incident !== undefined && typeof b.incident !== 'string')
+                throw Error('Invalid incident reference.');
+            for (const k of ['parts', 'observedTick'])
+                if (b[k] !== undefined && (!Number.isSafeInteger(b[k]) || b[k] < 0))
+                    throw Error('Invalid observation metadata.');
             if (b.amount !== undefined && (!Number.isSafeInteger(b.amount) || b.amount < 0))
                 throw Error('Invalid observed amount.');
         }

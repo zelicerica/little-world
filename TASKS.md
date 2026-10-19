@@ -59,3 +59,17 @@ Next useful action: user opens the standalone file and plays the first morning; 
 - [ ] User/browser visual interaction check of version 1.1.
 
 Known limits: offline dialogue remains templated, trust counts shared moments, and supply purchases arrive immediately. The original version was user-verified in a browser; this update has passed automated engine and build checks only.
+
+## 6. Cold-store crisis — version 1.2
+
+- [x] Storm damage, distinct incident identity, three repair stages, parts, and bounded spoilage.
+- [x] Funding after testimony; parts and repair supplies have balanced accounting and explicit sources.
+- [x] Resident cooperation: Ada’s warning, Dev’s news/deliveries, Ben’s request/repairs, Finn’s funding, Emi’s emergency release, Cleo’s market support.
+- [x] Local alarm visibility; private knowledge outside market/workshop.
+- [x] Keep essential news shareable and preserve original observation time through testimony.
+- [x] Crisis status panel, knowledge badges, and crisis journal filter.
+- [x] Old saves, mid-repair saves, deterministic continuation, and immutable replay snapshots.
+- [x] Twelve new tests; all 33 tests pass.
+- [ ] Browser/visual interaction check of version 1.2.
+
+Next user action: open the updated HTML, trigger Storm & cold-store outage, press Play, and inspect Ben/Finn and the journal. The baseline scenario repairs automatically; lack of funds can delay it. Previous versions were user-confirmed working; this update’s browser UI remains unverified here.
