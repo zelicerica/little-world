@@ -4,6 +4,36 @@ A small village with six residents, private memories, limited resources, and opt
 
 Current version: **1.4.1**. Start offline, or use your own OpenAI API key through the local server. Each resident has a separate personality and context; all six share the configured model and request budget.
 
+## Why this is worth building
+
+Little World makes an usually invisible part of AI visible: what happens between receiving information, making a choice, and living with the result.
+
+What I find interesting about this project is that a broken refrigerator can become a whole chain of decisions. Someone notices the failure. Someone else needs to hear about it. A mechanic needs parts, a clerk controls funding, and food keeps spoiling while the village responds. No single resident has the player's complete view. Even a sensible choice can arrive too late, or depend on a conversation that never happened.
+
+That makes a small village a useful place to ask a bigger question: **how do separate decision-makers coordinate when their knowledge, priorities, and resources differ?** You can watch an answer unfold, inspect the evidence behind it, change a condition, and try again. The visual world gives those questions a story people can follow.
+
+## What people can learn
+
+- **The difference between information and understanding.** Seeing the whole map does not mean a resident knows everything on it. Follow a refrigerator warning from a direct observation into someone else's memory. Ask whether a poor decision came from missing information, outdated information, or the decision policy itself.
+- **How cooperation depends on more than individual ability.** A capable mechanic still needs supplies and funding. A courier can help by carrying news rather than fixing anything personally. The village makes dependencies and coordination delays visible.
+- **How small decisions produce larger patterns.** Buying a meal, protecting a food buffer, funding parts, or sharing with a neighbor changes what others can do next. Local priorities can help or hurt a shared outcome without anyone explicitly choosing that outcome.
+- **What an LLM adds—and how to measure it.** Compare offline rules with occasional model-selected actions. A convincing explanation is something to examine alongside repair time, spoilage, hunger, and resource use. The current comparison measures a mixture of hosted choices and offline rules; repeated trials are needed before drawing broader conclusions.
+- **Why AI needs boundaries outside its prompt.** The model proposes an action from a legal list. Code validates that choice and controls money, inventory, and movement. This is a concrete way to learn the difference between asking an agent to behave and limiting what it can actually do.
+- **How to investigate a system.** Saved stories, recorded events, and replay let you trace what happened. The public explanation is a model's reported reason, not direct access to its internal reasoning. Compare that explanation with the resident's available information and the action's actual result.
+- **How to build software responsibly.** A playful project still needs private credentials, validated imports, tests, bounded API use, clear documentation, and honest reporting of what has and has not been verified.
+
+These lessons apply to thinking about workflows, organizations, and agent systems. Little World is a simplified teaching environment; its residents and outcomes do not establish how real people think or behave. A character's memories, personality label, or dialogue also does not demonstrate consciousness or human-like feelings.
+
+## Why keep building?
+
+The value of adding a feature is the question it lets someone investigate. Longer-term memory could let us test whether residents retrieve useful information or keep acting on stale reports. Different communication rules could reveal how news bottlenecks affect recovery. More scenarios and repeated comparisons could show whether an apparent improvement survives a change in starting conditions.
+
+Those are possible directions, not features already implemented. Keeping the village small enough to inspect is part of its value: each addition should make an important behavior easier to observe and test.
+
+A useful first experiment is to run the refrigerator crisis offline, inspect what Ben and Finn knew before repairs were funded, and then run the bounded hosted comparison. If the outcomes differ, trace the first meaningful difference in information or action. If they look similar, that is useful too: a more elaborate decision-maker does not automatically improve this particular task.
+
+The reason to keep building is to turn curiosity about AI into experiments that people can understand, question, and reproduce.
+
 ## Choose how to play
 
 | Mode | What to open | Installation | API charges |
