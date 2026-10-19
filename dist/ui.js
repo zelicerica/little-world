@@ -1,14 +1,74 @@
-import { create, step, intervene, places, time, load, save, replay, compareMornings, fridgeKnowledge } from './engine.js';
+import { hostedRequest } from './hosted.js';
+import { create, step, stepHosted, intervene, places, time, load, save, replay, compareMornings, fridgeKnowledge } from './engine.js';
 const el = (id) => document.getElementById(id);
+let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20, lastHostedTick = -Infinity;
 let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
 const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function message(s) { el('message').textContent = s; el('message').style.display = 'block'; setTimeout(() => el('message').style.display = 'none', 4500); }
 function pause() { playing = false; clearInterval(timer); el('play').textContent = '▶ Play'; }
-function tick() { if (game.events.length > 11000) {
-    pause();
-    message('This story has reached its event limit. Save it and start a new world.');
-    return;
-} step(game); render(); }
+function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for Dev’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
+function applyLocks() {
+    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare'))
+        b.disabled = aiBusy || (replayAt !== null && (b.matches('[data-intervention],#step')));
+    el('ai-enabled').disabled = !aiReady || aiBusy || replayAt !== null;
+    el('play').disabled = replayAt !== null;
+    aiStatus();
+}
+async function refreshAI() {
+    if (!['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol !== 'http:')
+        return;
+    try {
+        const r = await fetch('/api/status');
+        if (!r.ok)
+            return;
+        const data = await r.json();
+        aiReady = data.ready === true;
+        aiNonce = typeof data.nonce === 'string' ? data.nonce : '';
+        aiModel = String(data.model ?? '');
+        aiAttempts = Number(data.attempts ?? 0);
+        aiMax = Number(data.maxRequests ?? 20);
+    }
+    catch {
+        aiReady = false;
+    }
+    applyLocks();
+}
+async function tick() {
+    if (aiBusy)
+        return;
+    if (game.events.length > 11000) {
+        pause();
+        message('This story has reached its event limit. Save it and start a new world.');
+        return;
+    }
+    aiBusy = true;
+    applyLocks();
+    try {
+        if (el('ai-enabled').checked && aiReady) {
+            await stepHosted(game, async (v) => {
+                if (v.tick - lastHostedTick < 4)
+                    return { ok: false, reason: 'cadence' };
+                lastHostedTick = v.tick;
+                const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: AbortSignal.timeout(20000) });
+                if (!response.ok)
+                    return { ok: false, reason: 'provider-error' };
+                return response.json();
+            });
+        }
+        else
+            step(game);
+    }
+    catch {
+        pause();
+        message('The step could not finish. The village is paused.');
+    }
+    finally {
+        aiBusy = false;
+        render();
+        if (el('ai-enabled').checked)
+            void refreshAI();
+    }
+}
 function current() { return replayAt === null ? game.world : replay(game, replayAt); }
 function render() {
     const w = current(), r = w.residents.find(r => r.id === selected);
@@ -39,8 +99,7 @@ function render() {
     el('scrub').disabled = replayAt === null;
     el('replay-label').textContent = replayAt === null ? 'Live' : `${replayAt} / ${game.events.length}`;
     el('return').hidden = replayAt === null;
-    for (const b of document.querySelectorAll('[data-intervention],#play,#step'))
-        b.disabled = replayAt !== null;
+    applyLocks();
 }
 el('buildings').innerHTML = Object.entries(places).map(([id, p]) => `<div class="building ${id.includes('home') ? 'home' : id}" style="left:${p.x}%;top:${p.y}%"><span class="structure"></span><small>${p.name}</small></div>`).join('');
 for (const r of game.world.residents)
@@ -48,7 +107,7 @@ for (const r of game.world.residents)
 document.addEventListener('click', e => { const target = e.target.closest('[data-resident],[data-intervention]'); if (target?.dataset.resident) {
     selected = target.dataset.resident;
     render();
-} if (target?.dataset.intervention && replayAt === null) {
+} if (target?.dataset.intervention && replayAt === null && !aiBusy) {
     intervene(game, target.dataset.intervention);
     render();
     message('Your nudge is now part of the story.');
@@ -63,16 +122,21 @@ el('speed').onchange = () => { if (playing) {
     el('play').click();
 } };
 el('reset').onclick = () => { pause(); if (game.events.length && !confirm('Start a fresh village? Save first if you want to keep this story.'))
-    return; game = create(); replayAt = null; render(); };
+    return; game = create(); replayAt = null; lastHostedTick = -Infinity; render(); };
 el('save').onclick = () => { pause(); const blob = new Blob([save(game)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `little-world-day-${Math.floor(game.world.tick / 96) + 1}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('World saved. Keep the JSON file to revisit this story.'); };
 el('load').onclick = () => { pause(); el('file').click(); };
 el('file').onchange = async () => { const input = el('file'), file = input.files?.[0]; if (!file)
-    return; try {
+    return; if (aiBusy) {
+    message('Wait for Dev’s decision before loading a world.');
+    input.value = '';
+    return;
+} try {
     if (file.size > 40_000_000)
         throw Error('Choose a save smaller than 40 MB.');
     const next = load(await file.text());
     game = next;
     replayAt = null;
+    lastHostedTick = -Infinity;
     render();
     message('Your village is back, just as you left it.');
 }
@@ -105,3 +169,5 @@ el('compare').onclick = () => {
         }
     }, 30);
 };
+el('ai-enabled').onchange = () => { lastHostedTick = -Infinity; message(el('ai-enabled').checked ? 'Dev will use hosted AI for occasional decisions. API charges may apply.' : 'All six residents are back on offline rules.'); };
+void refreshAI();

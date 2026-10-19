@@ -16,7 +16,7 @@ Everything runs in your browser. No network requests, account, API key, paid ser
 
 The application uses TypeScript, DOM APIs, and CSS. The engine is independent of the interface. `dist/` and the standalone HTML are already compiled.
 
-Prerequisites: Node.js 22 or newer and npm. A dependency download is needed for a fresh developer install; playing the bundled file requires none.
+Prerequisites: Node.js 22.9 or newer and npm. A dependency download is needed for a fresh developer install; playing the bundled file requires none.
 
 ```sh
 npm ci
@@ -40,7 +40,7 @@ Then visit http://localhost:4173. This serving command is provided for local use
 - `src/engine.ts`: types, scenario constants, seeded clock, legal actions, offline decisions, events, knowledge views, validation, compact saves, and replay.
 - `src/ui.ts`: map, resident inspector, journal filters, controls, interventions, and file handling.
 - `src/style.css`: responsive illustrated map and interface; reduced-motion support.
-- `tests/engine.test.mjs`: 33 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
+- `tests/engine.test.mjs`: 45 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
 - `scripts/build.mjs`: static asset copying and standalone HTML packaging.
 
 Actions take one or two ticks. The engine queues and completes them in stable resident order. Money transfers between residents and the town; meals and supplies have recorded external sources or consumption. Workshop repair uses supplies. Garden harvests stop during storms. The courier visits the garden, earns Emi’s trust through conversations, loads up to three reserve meals, then travels to the market and unloads them. Those meals remain in his inventory during travel and can be eaten if he gets hungry. Residents become uncomfortable when hungry; health bottoms out at 30 and nobody dies.
@@ -51,11 +51,11 @@ Saves are schema version 1. The compact belief pool deduplicates repeated memori
 
 ## Validation and limits
 
-TypeScript checks, static build, all 33 engine tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
+TypeScript checks, static build, all 45 automated tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
 
 This prototype uses transparent offline rules, not an LLM. Personalities affect priorities, but policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
 
-Replay retains snapshots in memory and is intended for short stories. The interface stops before 12,000 events; imported saves are limited to 40 MB. Save, then reset for a fresh story. No automatic background persistence, undo branching, live model provider, or cloud deployment is implemented.
+Replay retains snapshots in memory and is intended for short stories. The interface stops before 12,000 events; imported saves are limited to 40 MB. Save, then reset for a fresh story. No automatic background persistence, undo branching, or cloud deployment is implemented. An opt-in hosted provider for Dev is available through the local server; it has not been tested with a live API key.
 
 Next useful extension: longer-term schedules and richer negotiation, then an optional server-side model adapter after explicitly choosing a provider and spending budget.
 
@@ -96,3 +96,48 @@ The panel is explicitly the player’s all-seeing view. Repair news spreads thro
 Version 1.2 passes 33 tests, TypeScript checking, and the standalone build. Tests cover the full repair sequence, balanced purchases/consumption, privacy, stalled funding and donation recovery, spoilage, repeated storms, invalid actions, save/replay, memory retention, and stale testimony. Earlier standalone versions were user-confirmed in the browser; this new UI has not received automated browser/visual QA.
 
 Existing version-1 saves still load and do not gain an outage spontaneously. New storms use the new mechanics; old event history replays unchanged. This is a deterministic story mechanic: procurement is immediate, funding uses a fixed reserve rule, trust counts shared moments, and health recovery is simplified. No model calls or paid services are involved.
+
+## Version 1.3 — optional hosted API for Dev
+
+The standalone HTML still runs entirely offline. **Hosted AI runs through the local Node server**, with the browser opening http://127.0.0.1:4173. The API key stays on your computer in an ignored environment file. The model service itself is hosted by OpenAI; no website deployment is needed.
+
+The default model is `gpt-5.4-mini`, selected after checking the official model documentation on October 18, 2026. Its documented structured-output support and no-reasoning setting fit short resident action choices. The model is configurable. Access and billing depend on your API account; a ChatGPT subscription is not treated as API credentials or credits.
+
+### Set up on Windows
+
+1. Download the complete current GitHub repository as a ZIP and extract it. Hosted mode needs the repository, not just the standalone HTML.
+2. Install Node.js 22.9 or newer if it is not already installed.
+3. Copy `.env.example` to `.env.local` in the project folder. Edit `.env.local` locally with a text editor. Put your API key in `OPENAI_API_KEY`, set `LITTLE_WORLD_AI_ENABLED=true`, and review the model and limits. Do not paste keys into chat or commit `.env.local`.
+4. Double-click `Start_Little_World.cmd`. It installs dependencies if they are missing and starts the local server. This Windows launcher has not been exercised in Windows here.
+5. Open the printed local URL. Turn on **Let Dev use hosted AI**, then press Play or Step. API calls start only after that opt-in and a simulation step. Close the terminal or press Ctrl+C to stop the server.
+
+The equivalent terminal commands, from the extracted project directory, are:
+
+```sh
+npm ci
+npm start
+```
+
+`npm start` loads `.env.local` when it exists. An absent file or disabled AI keeps the server in offline mode. The built assets are included; after changing source, run `npm run build` before starting. The HTTP application and real SDK request construction were verified in automated tests with mocked provider transport; an actual credentialed startup/request was not run here.
+
+### Boundaries and limits
+
+- Only Dev uses the hosted adapter. The other five residents use the existing deterministic policies. Dev uses offline rules between hosted turns; a model request is attempted at most once every four simulated ticks when he is choosing an action.
+- The provider receives only Dev’s bounded memories, personal state, relationships, legal action choices, local resources, and visible nearby residents. Neighbor memories and town-wide state are omitted. Memory text is explicitly treated as untrusted story data.
+- The model returns an index from the legal list, a public reason, and optional short dialogue. The engine validates the index and applies the selected action. Creative dialogue is labeled flavor, never inserted as new evidence into resident beliefs. Actual talk actions still transmit only known facts with provenance.
+- Default limits: 20 provider attempts per server run shared by all tabs, one concurrent request, no retries, 256 output tokens, an 8-second provider deadline, and a 20 KB model-context limit. Failed calls consume an attempt. These are request/output bounds, **not a dollar spending cap**. Configure provider-side spending controls separately; usage is charged by your provider. Restarting the server resets the local counter.
+- The page shows model and attempt counts. Token totals, where available, reflect successful validated responses; failed requests can still incur provider charges without reported token counts.
+- Bad JSON, invalid choices, provider errors, missing configuration, timeouts, and exhausted attempts use offline fallback, with a record in the journal. Cadence-only offline turns do not add failure events.
+- The server binds to `127.0.0.1`. Same-origin/Host checks and a per-process session token protect requests. No public hosting or multi-user authentication is configured. Only an explicit static-file allowlist is served; environment and server source files are excluded.
+- Requests are stateless with `store:false`, no previous-response ID, no model tools, and no shared conversation. This option is not a claim of zero data retention; provider policies still apply.
+- Accepted actions, model labels, dialogue, explanations, and fallbacks are recorded. Save/replay never calls a model.
+
+Code: `src/hosted.ts` bounds context; `server/provider.mjs` uses the version-matched AI SDK/OpenAI provider; `server/app.mjs` implements local serving, validation, limits, and redacted errors; `server/start.mjs` starts the listener. No API key is present in source, bundles, example environment files, saves, or logs.
+
+All **45 tests pass**, including actual loopback HTTP tests and a mocked transport through the real installed AI SDK. No paid/live model request, API account setup, Windows launcher run, or new browser visual check was performed. Existing saves remain compatible. Optional hosted behavior is not deterministic; recorded replay remains deterministic.
+
+Official references checked during implementation:
+- https://developers.openai.com/api/docs/models/gpt-5.4-mini
+- https://developers.openai.com/api/docs/guides/structured-outputs
+
+Next setup step: configure your own API account/key locally, review limits, and make one observed request before running a full simulation.

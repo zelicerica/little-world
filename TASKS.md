@@ -39,7 +39,7 @@
 
 Playable offline prototype delivered in `Little_World.html`; full source and compiled assets are included. Extract the ZIP, open that file, and press Play. Save before closing the tab.
 
-21 automated tests pass, including a low-food shipment scenario, private donation testimony, balanced transfers, and continued deterministic execution after save/load. No model integration or deployment was performed. Browser appearance and interaction were confirmed by the user; automated browser QA remains unperformed.
+21 automated tests pass, including a low-food shipment scenario, private donation testimony, balanced transfers, and continued deterministic execution after save/load. Hosted integration code has been added for Dev; no live model request or deployment was performed. Browser appearance and interaction were confirmed by the user; automated browser QA remains unperformed.
 
 Known limits: offline rules are simple; there is no free-form dialogue or branching replay. Snapshot history is intended for short runs. The UI stops near 12,000 events; saves above 40 MB are rejected. No autosave.
 
@@ -73,3 +73,19 @@ Known limits: offline dialogue remains templated, trust counts shared moments, a
 - [ ] Browser/visual interaction check of version 1.2.
 
 Next user action: open the updated HTML, trigger Storm & cold-store outage, press Play, and inspect Ben/Finn and the journal. The baseline scenario repairs automatically; lack of funds can delay it. Previous versions were user-confirmed working; this update’s browser UI remains unverified here.
+
+## 7. Hosted API — version 1.3
+
+- [x] OpenAI Responses via installed AI SDK 7 / OpenAI provider; configurable model (default gpt-5.4-mini).
+- [x] Private bounded resident context, structured legal-action selection, decorative dialogue, and offline fallbacks.
+- [x] Local Node server; server-side key, same-origin/Host checks, session token, and static-file allowlist.
+- [x] Shared 20-attempt run limit, output/context limits, timeout, one active request, and no retries.
+- [x] Opt-in hosted Dev controls; offline standalone remains functional.
+- [x] Record hosted decisions and fallbacks in saves/replay; no model calls for replay.
+- [x] Windows launcher and local environment example (no credentials).
+- [x] Twelve new automated tests; all 45 tests pass, including loopback HTTP and mocked real-SDK transport.
+- [ ] User API account, local key, and spending configuration.
+- [ ] One live observed request and provider billing verification.
+- [ ] Browser/visual check of hosted mode and Windows launcher execution.
+
+No live or paid model call was made. Request limits are not a dollar budget and reset when the server restarts. Hosted mode requires the local Node server and full project; the standalone HTML uses offline rules. Next action: walk the user through API account/key configuration locally, one step at a time.

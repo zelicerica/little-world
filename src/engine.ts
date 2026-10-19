@@ -244,7 +244,7 @@ function complete(g:Game,r:Resident){
  if(!text)text=`${r.name} waited a moment.`;
  const recipients=w.residents.filter(o=>o.location===r.location).map(o=>o.id);emit(g,before,r.id,a.kind,text,recipients,source,fact);
 }
-export function step(g:Game){
+function* advanceDecisions(g:Game):Generator<View,void,Decision|undefined>{
  let before=structuredClone(g.world);const w=g.world;w.tick++;w.rng=(Math.imul(w.rng,1664525)+1013904223)>>>0;
  for(const r of w.residents){r.hunger=Math.min(100,r.hunger+1);if(r.hunger>85)r.health=Math.max(30,r.health-1);}
  emit(g,before,'world','clock','Fifteen minutes pass.',[]);
@@ -254,7 +254,34 @@ export function step(g:Game){
   before=structuredClone(w);const lost=Math.min(scenario.spoilBatch,w.shopFood);w.shopFood-=lost;f.spoiled+=lost;f.nextSpoilTick=w.tick+scenario.spoilInterval;
   emit(g,before,'world','spoilage',lost?`${lost} market meals spoiled while the cold-store refrigerator was broken.`:'The cold store is still broken; no market meals remain to spoil.',w.residents.filter(r=>['grocer','workshop'].includes(r.location)).map(r=>r.id),lost?'Outage food spoilage':undefined,fridgeFact(w));
  }
- for(const r of w.residents){if(r.pending&&r.busyUntil<=w.tick)complete(g,r);if(!r.pending){noticeFridge(g,r);const decision=decide(view(w,r));act(g,decision.action,decision.reason);}}
+ for(const r of w.residents){if(r.pending&&r.busyUntil<=w.tick)complete(g,r);if(!r.pending){noticeFridge(g,r);const v=view(w,r),decision=(yield v)??decide(v);if(!act(g,decision.action,decision.reason)){const fallback=decide(view(w,r));act(g,fallback.action,fallback.reason);}}}
+}
+export function step(g:Game){
+ const iterator=advanceDecisions(g);let next=iterator.next();while(!next.done)next=iterator.next(decide(next.value));
+}
+export interface HostedReply {ok:boolean;actionIndex?:number;reason?:string;dialogue?:string;model?:string}
+export async function stepHosted(g:Game,propose:(v:View)=>Promise<unknown>){
+ const iterator=advanceDecisions(g);let next=iterator.next();
+ while(!next.done){
+  const v=next.value;let decision=decide(v),record:{text:string}|undefined;
+  if(v.self.id==='dev'){
+   try{
+    const raw=await propose(structuredClone(v));
+    const reply=raw as HostedReply;
+    if(reply?.ok===true&&Number.isInteger(reply.actionIndex)&&reply.actionIndex!>=0&&reply.actionIndex!<v.legalActions.length&&typeof reply.reason==='string'&&reply.reason.length>0&&reply.reason.length<=240&&typeof reply.dialogue==='string'&&reply.dialogue.length<=160&&typeof reply.model==='string'&&/^[a-zA-Z0-9._-]{1,80}$/.test(reply.model)){
+     decision={action:v.legalActions[reply.actionIndex!],reason:`Hosted ${reply.model}: ${reply.reason}`};
+     record={text:`Dev used ${reply.model} to choose legal action ${reply.actionIndex}. ${reply.dialogue?`In-character flavor (not new evidence): “${reply.dialogue}”`:''}`};
+    }else if(reply?.ok===false&&reply.reason==='cadence'){
+     // Between model turns, the offline policy keeps the village moving.
+    }else{
+     const safe=['disabled','missing-key','budget','timeout','provider-error','malformed','busy','not-ready','cancelled'].includes(reply?.reason??'')?reply.reason:'malformed';
+     decision.reason=`Offline fallback (${safe}). ${decision.reason}`;record={text:`Dev used the offline policy: ${safe}.`};
+    }
+   }catch{decision.reason=`Offline fallback (provider-error). ${decision.reason}`;record={text:'Dev used the offline policy: provider-error.'};}
+  }
+  if(record)emit(g,structuredClone(g.world),'dev','ai',record.text,[]);
+  next=iterator.next(decision);
+ }
 }
 export function intervene(g:Game,kind:'storm'|'delay'|'donation'){
  const before=structuredClone(g.world),w=g.world;let text='';

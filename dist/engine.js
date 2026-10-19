@@ -437,7 +437,7 @@ function complete(g, r) {
     const recipients = w.residents.filter(o => o.location === r.location).map(o => o.id);
     emit(g, before, r.id, a.kind, text, recipients, source, fact);
 }
-export function step(g) {
+function* advanceDecisions(g) {
     let before = structuredClone(g.world);
     const w = g.world;
     w.tick++;
@@ -468,9 +468,51 @@ export function step(g) {
             complete(g, r);
         if (!r.pending) {
             noticeFridge(g, r);
-            const decision = decide(view(w, r));
-            act(g, decision.action, decision.reason);
+            const v = view(w, r), decision = (yield v) ?? decide(v);
+            if (!act(g, decision.action, decision.reason)) {
+                const fallback = decide(view(w, r));
+                act(g, fallback.action, fallback.reason);
+            }
         }
+    }
+}
+export function step(g) {
+    const iterator = advanceDecisions(g);
+    let next = iterator.next();
+    while (!next.done)
+        next = iterator.next(decide(next.value));
+}
+export async function stepHosted(g, propose) {
+    const iterator = advanceDecisions(g);
+    let next = iterator.next();
+    while (!next.done) {
+        const v = next.value;
+        let decision = decide(v), record;
+        if (v.self.id === 'dev') {
+            try {
+                const raw = await propose(structuredClone(v));
+                const reply = raw;
+                if (reply?.ok === true && Number.isInteger(reply.actionIndex) && reply.actionIndex >= 0 && reply.actionIndex < v.legalActions.length && typeof reply.reason === 'string' && reply.reason.length > 0 && reply.reason.length <= 240 && typeof reply.dialogue === 'string' && reply.dialogue.length <= 160 && typeof reply.model === 'string' && /^[a-zA-Z0-9._-]{1,80}$/.test(reply.model)) {
+                    decision = { action: v.legalActions[reply.actionIndex], reason: `Hosted ${reply.model}: ${reply.reason}` };
+                    record = { text: `Dev used ${reply.model} to choose legal action ${reply.actionIndex}. ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
+                }
+                else if (reply?.ok === false && reply.reason === 'cadence') {
+                    // Between model turns, the offline policy keeps the village moving.
+                }
+                else {
+                    const safe = ['disabled', 'missing-key', 'budget', 'timeout', 'provider-error', 'malformed', 'busy', 'not-ready', 'cancelled'].includes(reply?.reason ?? '') ? reply.reason : 'malformed';
+                    decision.reason = `Offline fallback (${safe}). ${decision.reason}`;
+                    record = { text: `Dev used the offline policy: ${safe}.` };
+                }
+            }
+            catch {
+                decision.reason = `Offline fallback (provider-error). ${decision.reason}`;
+                record = { text: 'Dev used the offline policy: provider-error.' };
+            }
+        }
+        if (record)
+            emit(g, structuredClone(g.world), 'dev', 'ai', record.text, []);
+        next = iterator.next(decision);
     }
 }
 export function intervene(g, kind) {

@@ -3,14 +3,16 @@
 .decision-reason{font:italic 13px/1.6 Georgia,serif;color:#597050;background:#f1f3e8;padding:12px;border-left:2px solid #a1b48c;border-radius:0 6px 6px 0}.comparison{margin-top:30px;padding:24px;background:#f0f2e6;border:1px solid var(--line);border-radius:12px}.comparison-option{display:flex;align-items:center;gap:7px;font-size:11px;margin:18px 0;color:#67795a}.comparison input{accent-color:#59794c}.table-scroll{overflow:auto}.comparison table{border-collapse:collapse;width:100%;font-size:12px;margin:16px 0}.comparison th,.comparison td{padding:10px 8px;border-bottom:1px solid #dce3ce;text-align:right}.comparison th:first-child{text-align:left}.comparison thead{color:#617653}.comparison tbody th{font-weight:400}.comparison .knowledge-note{font-size:11px;line-height:1.7}.comparison button{font-size:12px}@media(max-width:740px){.comparison{padding:16px}.comparison .journal-heading button{margin-top:15px}.comparison table{font-size:10px}.comparison th,.comparison td{padding:9px 4px}}
 
 .crisis-panel{margin-top:20px;padding:20px;background:#f5ead8;border:1px solid #d9bd8c;border-radius:12px}.crisis-panel[hidden]{display:none}.crisis-panel.resolved{background:#eaf0df;border-color:#b6c7a1}.crisis-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.crisis-heading h2{font-size:24px}.crisis-heading>strong{font:16px Georgia,serif;white-space:nowrap}.crisis-panel>p{font-size:12px;line-height:1.7;color:#7d735c}.crisis-panel .knowledge-note{font-size:10px}.crisis-numbers{display:flex;flex-wrap:wrap;gap:15px;font-size:11px;margin:15px 0}.crisis-panel .bar{background:#e3d7ba;height:7px}.crisis-panel .bar span{background:#a98545}.crisis-panel.resolved .bar span{background:#7a965d}.crisis-knowledge{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:9px;color:#827a65}.crisis-knowledge span{padding:7px;background:#ffffff60;border-radius:4px}.crisis-knowledge strong{display:block;color:#586e4c;font-size:10px;margin-bottom:3px}@media(max-width:740px){.crisis-heading{display:block}.crisis-heading>strong{display:block;margin-top:10px}.crisis-knowledge{grid-template-columns:repeat(2,1fr)}}
+
+.ai-panel{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#edf0e5;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:22px}.ai-panel strong{font:19px Georgia,serif}.ai-panel p{font-size:11px;color:#73816a;margin:7px 0}.ai-panel small{font-size:10px;color:#89937c}.ai-panel label{display:flex;align-items:center;gap:8px;font-size:12px;white-space:nowrap}.ai-panel input{accent-color:#365d49}.ai-panel label:has(input:disabled){opacity:.65}@media(max-width:740px){.ai-panel{display:block}.ai-panel label{margin-top:14px}}
 </style></head><body>
 <header><a class="brand" href="#"><span class="brandmark">✳</span><span>little world<small>A SMALL PLACE. DISTINCT PERSONALITIES.</small></span></a><div class="live"><i></i> OFFLINE VILLAGE <span id="clock"></span></div><div class="header-actions"><button id="save">↓ Save world</button><button id="load">↑ Load</button><input type="file" id="file" accept=".json" hidden></div></header>
 <main><section class="intro"><div><p class="eyebrow">A LIVING LITTLE EXPERIMENT</p><h1>Every day has a story.</h1><p>Six neighbors. A handful of resources. A world that keeps unfolding.</p></div><div class="weather" id="weather">☀ <span>A quiet morning<small>Perfect weather for a fresh start</small></span></div></section>
-<section class="dashboard"><div class="village-column"><div class="map-top"><span><i class="dot"></i> THE VILLAGE <span class="muted">· Player’s all-seeing view</span></span><span id="day-label">SEED 42</span></div><div class="map" id="map" aria-label="Village map"><svg class="landscape" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="grass" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M10 14l2-4 2 4M31 32l2-4 2 4" stroke="#88a56d" stroke-width="1" fill="none" opacity=".35"/></pattern></defs><rect width="1000" height="650" fill="#cbd9ac"/><rect width="1000" height="650" fill="url(#grass)"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#94b9b5" stroke-width="65" fill="none"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#b1cebf" stroke-width="42" fill="none"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#b9bd90" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#eee2bd" stroke-width="31" fill="none" stroke-linecap="round"/><ellipse cx="500" cy="320" rx="75" ry="57" fill="#e8d8b2"/><g fill="#789963" stroke="#638452" stroke-width="3"><circle cx="335" cy="375" r="27"/><circle cx="355" cy="357" r="23"/><circle cx="655" cy="107" r="28"/><circle cx="685" cy="122" r="23"/><circle cx="920" cy="325" r="33"/><circle cx="893" cy="353" r="24"/><circle cx="370" cy="565" r="32"/><circle cx="685" cy="560" r="28"/><circle cx="290" cy="68" r="20"/><circle cx="164" cy="392" r="23"/></g><g fill="#efe3aa"><circle cx="360" cy="250" r="3"/><circle cx="368" cy="256" r="3"/><circle cx="690" cy="375" r="3"/><circle cx="700" cy="380" r="3"/><circle cx="331" cy="520" r="3"/></g><path d="M55 305L133 305" stroke="#a58663" stroke-width="32"/><path d="M55 305L133 305" stroke="#c8ae81" stroke-width="24"/></svg><div id="buildings"></div><div id="residents"></div><div class="map-caption">Click a neighbor to see their world.</div><div class="compass">N<br>↑</div></div>
+<section class="ai-panel"><div><strong>Dev’s next chapter</strong><p>Try hosted AI for the courier. The other five neighbors keep their offline rules.</p><small id="ai-status" role="status">Offline mode. Hosted AI requires the local server.</small></div><label><input type="checkbox" id="ai-enabled" disabled> Let Dev use hosted AI</label></section><section class="dashboard"><div class="village-column"><div class="map-top"><span><i class="dot"></i> THE VILLAGE <span class="muted">· Player’s all-seeing view</span></span><span id="day-label">SEED 42</span></div><div class="map" id="map" aria-label="Village map"><svg class="landscape" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="grass" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M10 14l2-4 2 4M31 32l2-4 2 4" stroke="#88a56d" stroke-width="1" fill="none" opacity=".35"/></pattern></defs><rect width="1000" height="650" fill="#cbd9ac"/><rect width="1000" height="650" fill="url(#grass)"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#94b9b5" stroke-width="65" fill="none"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#b1cebf" stroke-width="42" fill="none"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#b9bd90" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#eee2bd" stroke-width="31" fill="none" stroke-linecap="round"/><ellipse cx="500" cy="320" rx="75" ry="57" fill="#e8d8b2"/><g fill="#789963" stroke="#638452" stroke-width="3"><circle cx="335" cy="375" r="27"/><circle cx="355" cy="357" r="23"/><circle cx="655" cy="107" r="28"/><circle cx="685" cy="122" r="23"/><circle cx="920" cy="325" r="33"/><circle cx="893" cy="353" r="24"/><circle cx="370" cy="565" r="32"/><circle cx="685" cy="560" r="28"/><circle cx="290" cy="68" r="20"/><circle cx="164" cy="392" r="23"/></g><g fill="#efe3aa"><circle cx="360" cy="250" r="3"/><circle cx="368" cy="256" r="3"/><circle cx="690" cy="375" r="3"/><circle cx="700" cy="380" r="3"/><circle cx="331" cy="520" r="3"/></g><path d="M55 305L133 305" stroke="#a58663" stroke-width="32"/><path d="M55 305L133 305" stroke="#c8ae81" stroke-width="24"/></svg><div id="buildings"></div><div id="residents"></div><div class="map-caption">Click a neighbor to see their world.</div><div class="compass">N<br>↑</div></div>
 <div class="controls"><div class="play-controls"><button id="play" class="primary">▶ Play</button><button id="step" title="Advance fifteen minutes">Step →</button><label>Speed <select id="speed"><option value="1000">1×</option><option value="400">2×</option><option value="120">5×</option></select></label></div><button id="reset" class="text-button">↺ New day</button></div><div class="stats" id="stats"></div><section id="crisis" class="crisis-panel" aria-label="Cold-store crisis" hidden></section>
 <section class="interventions"><div><p class="eyebrow">A LITTLE CHANGE GOES A LONG WAY</p><h2>Give the story a nudge.</h2></div><div class="intervention-grid"><button data-intervention="storm"><span>☁</span><strong>Storm &amp; cold-store outage</strong><small>Damage the refrigerator; test cooperation</small></button><button data-intervention="delay"><span>◷</span><strong>Delay a shipment</strong><small>Put the food supply to the test</small></button><button data-intervention="donation"><span>♡</span><strong>Leave a donation</strong><small>Add 100 coins, anonymously</small></button></div></section></div>
 <aside class="inspector"><div class="panel-label">MEET YOUR NEIGHBORS <span>06</span></div><div class="cast" id="cast"></div><div id="inspector-content"></div></aside></section>
-<section class="comparison"><div class="journal-heading"><div><p class="eyebrow">SAME VILLAGE. ONE DIFFERENT DELIVERY.</p><h2>What changes when food runs late?</h2></div><button id="compare">Compare two days →</button></div><label class="comparison-option"><input type="checkbox" id="scarce" checked> Test a food shortage in both runs</label><div id="comparison-result" aria-live="polite"><p class="knowledge-note">Compare two complete days without changing your current story. One shipment arrives eight hours late. Leave the shortage option on to make the tradeoffs easier to see.</p></div></section><section class="journal"><div class="journal-heading"><div><p class="eyebrow">THE VILLAGE JOURNAL</p><h2>Little moments, unfolding.</h2></div><div class="filters"><label class="sr-only" for="resident-filter">Filter resident</label><select id="resident-filter"><option value="all">All neighbors</option></select><label class="sr-only" for="type-filter">Filter event type</label><select id="type-filter"><option value="all">All moments</option><option value="talk">Conversations</option><option value="work">Work</option><option value="crisis">Cold-store crisis</option><option value="buy">Food purchases</option><option value="intervention">Your interventions</option><option value="shipment">Shipments</option></select><label><input type="checkbox" id="decisions"> Decisions</label></div></div><div id="feed" class="feed"></div></section>
+<section class="comparison"><div class="journal-heading"><div><p class="eyebrow">SAME VILLAGE. ONE DIFFERENT DELIVERY.</p><h2>What changes when food runs late?</h2></div><button id="compare">Compare two days →</button></div><label class="comparison-option"><input type="checkbox" id="scarce" checked> Test a food shortage in both runs</label><div id="comparison-result" aria-live="polite"><p class="knowledge-note">Compare two complete days without changing your current story. One shipment arrives eight hours late. Leave the shortage option on to make the tradeoffs easier to see.</p></div></section><section class="journal"><div class="journal-heading"><div><p class="eyebrow">THE VILLAGE JOURNAL</p><h2>Little moments, unfolding.</h2></div><div class="filters"><label class="sr-only" for="resident-filter">Filter resident</label><select id="resident-filter"><option value="all">All neighbors</option></select><label class="sr-only" for="type-filter">Filter event type</label><select id="type-filter"><option value="all">All moments</option><option value="talk">Conversations</option><option value="work">Work</option><option value="crisis">Cold-store crisis</option><option value="ai">Hosted AI &amp; fallbacks</option><option value="buy">Food purchases</option><option value="intervention">Your interventions</option><option value="shipment">Shipments</option></select><label><input type="checkbox" id="decisions"> Decisions</label></div></div><div id="feed" class="feed"></div></section>
 <section class="replay-panel"><div><strong>Revisit the story</strong><small>Replay recorded events without asking residents to decide again.</small></div><button id="replay">↶ Replay</button><input aria-label="Replay position" type="range" id="scrub" min="0" value="0" max="0" disabled><span id="replay-label">Live</span><button id="return" hidden>Return to live</button></section><p class="footnote">Built for curiosity. Decisions follow offline rules. Memories belong to each neighbor.<br>Money and resources follow the village’s rules; outside shipments and gifts are recorded.</p><div id="message" role="status" aria-live="polite"></div></main><script type="module">const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76, bufferMeals: 3, trustToRelease: 2, wagePauseAt: 40, wageResumeAt: 60, supplyCost: 12, supplyBatch: 6, fridgeCost: 18, fridgeParts: 3, fridgeRepairStep: 34, spoilInterval: 4, spoilBatch: 2 };
 const places = { grocer: { name: 'Ada’s Market', x: 24, y: 28, icon: '🥕' }, clinic: { name: 'Cleo’s Clinic', x: 76, y: 27, icon: '✚' }, workshop: { name: 'The Workshop', x: 78, y: 67, icon: '⚒' }, garden: { name: 'Community Garden', x: 23, y: 68, icon: '🌱' }, hall: { name: 'Town Hall', x: 50, y: 18, icon: '⚑' }, square: { name: 'Village Square', x: 50, y: 49, icon: '⛲' }, 'ada-home': { name: 'Ada’s home', x: 12, y: 12, icon: '⌂' }, 'ben-home': { name: 'Ben’s home', x: 88, y: 84, icon: '⌂' }, 'cleo-home': { name: 'Cleo’s home', x: 88, y: 12, icon: '⌂' }, 'dev-home': { name: 'Dev’s home', x: 55, y: 84, icon: '⌂' }, 'emi-home': { name: 'Emi’s home', x: 12, y: 84, icon: '⌂' }, 'finn-home': { name: 'Finn’s home', x: 38, y: 8, icon: '⌂' } };
 function create(seed = 42) {
@@ -450,7 +452,7 @@ function complete(g, r) {
     const recipients = w.residents.filter(o => o.location === r.location).map(o => o.id);
     emit(g, before, r.id, a.kind, text, recipients, source, fact);
 }
-function step(g) {
+function* advanceDecisions(g) {
     let before = structuredClone(g.world);
     const w = g.world;
     w.tick++;
@@ -481,9 +483,51 @@ function step(g) {
             complete(g, r);
         if (!r.pending) {
             noticeFridge(g, r);
-            const decision = decide(view(w, r));
-            act(g, decision.action, decision.reason);
+            const v = view(w, r), decision = (yield v) ?? decide(v);
+            if (!act(g, decision.action, decision.reason)) {
+                const fallback = decide(view(w, r));
+                act(g, fallback.action, fallback.reason);
+            }
         }
+    }
+}
+function step(g) {
+    const iterator = advanceDecisions(g);
+    let next = iterator.next();
+    while (!next.done)
+        next = iterator.next(decide(next.value));
+}
+async function stepHosted(g, propose) {
+    const iterator = advanceDecisions(g);
+    let next = iterator.next();
+    while (!next.done) {
+        const v = next.value;
+        let decision = decide(v), record;
+        if (v.self.id === 'dev') {
+            try {
+                const raw = await propose(structuredClone(v));
+                const reply = raw;
+                if (reply?.ok === true && Number.isInteger(reply.actionIndex) && reply.actionIndex >= 0 && reply.actionIndex < v.legalActions.length && typeof reply.reason === 'string' && reply.reason.length > 0 && reply.reason.length <= 240 && typeof reply.dialogue === 'string' && reply.dialogue.length <= 160 && typeof reply.model === 'string' && /^[a-zA-Z0-9._-]{1,80}$/.test(reply.model)) {
+                    decision = { action: v.legalActions[reply.actionIndex], reason: `Hosted ${reply.model}: ${reply.reason}` };
+                    record = { text: `Dev used ${reply.model} to choose legal action ${reply.actionIndex}. ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
+                }
+                else if (reply?.ok === false && reply.reason === 'cadence') {
+                    // Between model turns, the offline policy keeps the village moving.
+                }
+                else {
+                    const safe = ['disabled', 'missing-key', 'budget', 'timeout', 'provider-error', 'malformed', 'busy', 'not-ready', 'cancelled'].includes(reply?.reason ?? '') ? reply.reason : 'malformed';
+                    decision.reason = `Offline fallback (${safe}). ${decision.reason}`;
+                    record = { text: `Dev used the offline policy: ${safe}.` };
+                }
+            }
+            catch {
+                decision.reason = `Offline fallback (provider-error). ${decision.reason}`;
+                record = { text: 'Dev used the offline policy: provider-error.' };
+            }
+        }
+        if (record)
+            emit(g, structuredClone(g.world), 'dev', 'ai', record.text, []);
+        next = iterator.next(decision);
     }
 }
 function intervene(g, kind) {
@@ -665,16 +709,126 @@ function compareMornings(initial, scarce = false) {
     return { normal: run(false), delayed: run(true) };
 }
 
+const knownIds = new Set(['ada', 'ben', 'cleo', 'dev', 'emi', 'finn']);
+const kinds = new Set(['move', 'buy', 'work', 'eat', 'rest', 'talk', 'give', 'wait']);
+function bounded(value, max = 1_000_000) { if (!Number.isSafeInteger(value) || value < 0 || value > max)
+    throw Error('Invalid resident context.'); return value; }
+function short(value, max) { if (typeof value !== 'string' || value.length > max)
+    throw Error('Invalid resident context.'); return value; }
+function prepareHostedContext(v) {
+    if (!v || v.self?.id !== 'dev' || !Array.isArray(v.legalActions) || v.legalActions.length > 256 || !Array.isArray(v.self.beliefs) || !Array.isArray(v.nearby))
+        throw Error('Only Dev can use the hosted adapter.');
+    const canonical = create().world.residents.find(r => r.id === 'dev');
+    const selected = v.self.beliefs.slice(-16), critical = fridgeKnowledge(v.self);
+    if (critical && !selected.some(b => b.id === critical.id))
+        selected.unshift(critical);
+    // Keep known facts referenced by candidate talk actions, without sharing other residents' memories.
+    for (const a of v.legalActions) {
+        if (selected.length >= 32)
+            break;
+        if (a.fact) {
+            const b = v.self.beliefs.find(b => b.id === a.fact);
+            if (b && !selected.some(o => o.id === b.id))
+                selected.push(b);
+        }
+    }
+    const memoryIds = new Set(selected.map(b => b.id));
+    const memories = selected.map(b => ({ id: short(b.id, 100), text: short(b.text, 1000).slice(0, 300), source: short(b.source, 100), eventId: short(b.eventId, 100), provenance: short(b.provenance, 20), tick: bounded(b.tick), ...(b.observedTick !== undefined ? { observedTick: bounded(b.observedTick) } : {}), ...(b.topic ? { topic: short(b.topic, 30) } : {}), ...(b.amount !== undefined ? { amount: bounded(b.amount) } : {}) }));
+    const actions = v.legalActions.map((a, index) => {
+        if (a.actor !== 'dev' || !kinds.has(a.kind) || ![1, 2].includes(a.duration))
+            throw Error('Invalid legal action.');
+        return { index, kind: a.kind, duration: a.duration, ...(a.target ? { target: short(a.target, 80) } : {}), ...(a.fact ? { fact: short(a.fact, 100) } : {}) };
+    }).filter(a => !a.fact || memoryIds.has(a.fact)).slice(0, 64);
+    if (!actions.length)
+        throw Error('No legal actions available.');
+    const local = { storm: !!v.local?.storm };
+    for (const k of ['marketFood', 'reserve', 'supplies', 'repaired', 'budget'])
+        if (v.local?.[k] !== undefined)
+            local[k] = bounded(v.local[k]);
+    if (v.local?.fridge)
+        local.fridge = { progress: bounded(v.local.fridge.progress, 100), parts: bounded(v.local.fridge.parts) };
+    if (v.local?.wagesPaused !== undefined)
+        local.wagesPaused = !!v.local.wagesPaused;
+    const context = { tick: bounded(v.tick), self: { id: 'dev', name: canonical.name, role: canonical.role, trait: canonical.trait, goal: canonical.goal, location: short(v.self.location, 40), money: bounded(v.self.money), food: bounded(v.self.food), hunger: bounded(v.self.hunger, 100), energy: bounded(v.self.energy, 100), health: bounded(v.self.health, 100), relationships: Object.fromEntries(Object.entries(v.self.relationships ?? {}).filter(([id]) => knownIds.has(id)).map(([id, n]) => [id, bounded(n)])) }, local, nearby: v.nearby.slice(0, 5).map(r => { if (!knownIds.has(r.id))
+            throw Error('Invalid neighbor.'); return { id: r.id, name: short(r.name, 30), hunger: bounded(r.hunger, 100), food: bounded(r.food), health: bounded(r.health, 100) }; }), memories, actions };
+    if (new TextEncoder().encode(JSON.stringify(context)).length > 20_000)
+        throw Error('Resident context is too large.');
+    return context;
+}
+function hostedRequest(v) {
+    const context = prepareHostedContext(v), ids = new Set(context.memories.map(b => b.id));
+    return { ...v, self: { ...v.self, beliefs: v.self.beliefs.filter(b => ids.has(b.id)), sharedFacts: [], lastDecision: '' } };
+}
+
 const el = (id) => document.getElementById(id);
+let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20, lastHostedTick = -Infinity;
 let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
 const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function message(s) { el('message').textContent = s; el('message').style.display = 'block'; setTimeout(() => el('message').style.display = 'none', 4500); }
 function pause() { playing = false; clearInterval(timer); el('play').textContent = '▶ Play'; }
-function tick() { if (game.events.length > 11000) {
-    pause();
-    message('This story has reached its event limit. Save it and start a new world.');
-    return;
-} step(game); render(); }
+function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for Dev’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
+function applyLocks() {
+    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare'))
+        b.disabled = aiBusy || (replayAt !== null && (b.matches('[data-intervention],#step')));
+    el('ai-enabled').disabled = !aiReady || aiBusy || replayAt !== null;
+    el('play').disabled = replayAt !== null;
+    aiStatus();
+}
+async function refreshAI() {
+    if (!['localhost', '127.0.0.1'].includes(location.hostname) || location.protocol !== 'http:')
+        return;
+    try {
+        const r = await fetch('/api/status');
+        if (!r.ok)
+            return;
+        const data = await r.json();
+        aiReady = data.ready === true;
+        aiNonce = typeof data.nonce === 'string' ? data.nonce : '';
+        aiModel = String(data.model ?? '');
+        aiAttempts = Number(data.attempts ?? 0);
+        aiMax = Number(data.maxRequests ?? 20);
+    }
+    catch {
+        aiReady = false;
+    }
+    applyLocks();
+}
+async function tick() {
+    if (aiBusy)
+        return;
+    if (game.events.length > 11000) {
+        pause();
+        message('This story has reached its event limit. Save it and start a new world.');
+        return;
+    }
+    aiBusy = true;
+    applyLocks();
+    try {
+        if (el('ai-enabled').checked && aiReady) {
+            await stepHosted(game, async (v) => {
+                if (v.tick - lastHostedTick < 4)
+                    return { ok: false, reason: 'cadence' };
+                lastHostedTick = v.tick;
+                const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: AbortSignal.timeout(20000) });
+                if (!response.ok)
+                    return { ok: false, reason: 'provider-error' };
+                return response.json();
+            });
+        }
+        else
+            step(game);
+    }
+    catch {
+        pause();
+        message('The step could not finish. The village is paused.');
+    }
+    finally {
+        aiBusy = false;
+        render();
+        if (el('ai-enabled').checked)
+            void refreshAI();
+    }
+}
 function current() { return replayAt === null ? game.world : replay(game, replayAt); }
 function render() {
     const w = current(), r = w.residents.find(r => r.id === selected);
@@ -705,8 +859,7 @@ function render() {
     el('scrub').disabled = replayAt === null;
     el('replay-label').textContent = replayAt === null ? 'Live' : `${replayAt} / ${game.events.length}`;
     el('return').hidden = replayAt === null;
-    for (const b of document.querySelectorAll('[data-intervention],#play,#step'))
-        b.disabled = replayAt !== null;
+    applyLocks();
 }
 el('buildings').innerHTML = Object.entries(places).map(([id, p]) => `<div class="building ${id.includes('home') ? 'home' : id}" style="left:${p.x}%;top:${p.y}%"><span class="structure"></span><small>${p.name}</small></div>`).join('');
 for (const r of game.world.residents)
@@ -714,7 +867,7 @@ for (const r of game.world.residents)
 document.addEventListener('click', e => { const target = e.target.closest('[data-resident],[data-intervention]'); if (target?.dataset.resident) {
     selected = target.dataset.resident;
     render();
-} if (target?.dataset.intervention && replayAt === null) {
+} if (target?.dataset.intervention && replayAt === null && !aiBusy) {
     intervene(game, target.dataset.intervention);
     render();
     message('Your nudge is now part of the story.');
@@ -729,16 +882,21 @@ el('speed').onchange = () => { if (playing) {
     el('play').click();
 } };
 el('reset').onclick = () => { pause(); if (game.events.length && !confirm('Start a fresh village? Save first if you want to keep this story.'))
-    return; game = create(); replayAt = null; render(); };
+    return; game = create(); replayAt = null; lastHostedTick = -Infinity; render(); };
 el('save').onclick = () => { pause(); const blob = new Blob([save(game)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `little-world-day-${Math.floor(game.world.tick / 96) + 1}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('World saved. Keep the JSON file to revisit this story.'); };
 el('load').onclick = () => { pause(); el('file').click(); };
 el('file').onchange = async () => { const input = el('file'), file = input.files?.[0]; if (!file)
-    return; try {
+    return; if (aiBusy) {
+    message('Wait for Dev’s decision before loading a world.');
+    input.value = '';
+    return;
+} try {
     if (file.size > 40_000_000)
         throw Error('Choose a save smaller than 40 MB.');
     const next = load(await file.text());
     game = next;
     replayAt = null;
+    lastHostedTick = -Infinity;
     render();
     message('Your village is back, just as you left it.');
 }
@@ -771,4 +929,6 @@ el('compare').onclick = () => {
         }
     }, 30);
 };
+el('ai-enabled').onchange = () => { lastHostedTick = -Infinity; message(el('ai-enabled').checked ? 'Dev will use hosted AI for occasional decisions. API charges may apply.' : 'All six residents are back on offline rules.'); };
+void refreshAI();
 </script></body></html>

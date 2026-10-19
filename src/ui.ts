@@ -1,10 +1,37 @@
-import {create,step,intervene,places,time,load,save,replay,compareMornings,fridgeKnowledge,type Game,type Place,type World} from './engine.js';
+import {hostedRequest} from './hosted.js';
+import {create,step,stepHosted,intervene,places,time,load,save,replay,compareMornings,fridgeKnowledge,type Game,type Place,type World} from './engine.js';
 const el=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
+let aiBusy=false,aiReady=false,aiNonce='',aiModel='',aiAttempts=0,aiMax=20,lastHostedTick=-Infinity;
 let game:Game=create(),selected='ada',playing=false,timer:ReturnType<typeof setInterval>|undefined,replayAt:number|null=null;
 const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 function message(s:string){el('message').textContent=s;el('message').style.display='block';setTimeout(()=>el('message').style.display='none',4500);}
 function pause(){playing=false;clearInterval(timer);el('play').textContent='▶ Play';}
-function tick(){if(game.events.length>11000){pause();message('This story has reached its event limit. Save it and start a new world.');return;}step(game);render();}
+function aiStatus(){el('ai-status').textContent=aiBusy?'Waiting for Dev’s decision…':aiReady?`${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.`:'Offline mode. Start the local server and configure .env.local for hosted AI.';}
+function applyLocks(){
+ for(const b of document.querySelectorAll<HTMLButtonElement>('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare'))b.disabled=aiBusy||(replayAt!==null&&(b.matches('[data-intervention],#step')));
+ el<HTMLInputElement>('ai-enabled').disabled=!aiReady||aiBusy||replayAt!==null;el<HTMLButtonElement>('play').disabled=replayAt!==null;aiStatus();
+}
+async function refreshAI(){
+ if(!['localhost','127.0.0.1'].includes(location.hostname)||location.protocol!=='http:')return;
+ try{const r=await fetch('/api/status');if(!r.ok)return;const data=await r.json();aiReady=data.ready===true;aiNonce=typeof data.nonce==='string'?data.nonce:'';aiModel=String(data.model??'');aiAttempts=Number(data.attempts??0);aiMax=Number(data.maxRequests??20);}catch{aiReady=false;}applyLocks();
+}
+async function tick(){
+ if(aiBusy)return;
+ if(game.events.length>11000){pause();message('This story has reached its event limit. Save it and start a new world.');return;}
+ aiBusy=true;applyLocks();
+ try{
+  if(el<HTMLInputElement>('ai-enabled').checked&&aiReady){
+   await stepHosted(game,async v=>{
+    if(v.tick-lastHostedTick<4)return {ok:false,reason:'cadence'};
+    lastHostedTick=v.tick;
+    const response=await fetch('/api/decide',{method:'POST',headers:{'Content-Type':'application/json','X-Little-World-Token':aiNonce},body:JSON.stringify(hostedRequest(v)),signal:AbortSignal.timeout(20000)});
+    if(!response.ok)return {ok:false,reason:'provider-error'};
+    return response.json();
+   });
+  }else step(game);
+ }catch{pause();message('The step could not finish. The village is paused.');}
+ finally{aiBusy=false;render();if(el<HTMLInputElement>('ai-enabled').checked)void refreshAI();}
+}
 function current():World{return replayAt===null?game.world:replay(game,replayAt);}
 function render(){
  const w=current(),r=w.residents.find(r=>r.id===selected)!;
@@ -23,16 +50,16 @@ function render(){
  const events=(replayAt===null?game.events:game.events.slice(0,replayAt)).filter(e=>e.type!=='clock'&&(decisions||e.type!=='decision')&&(rf==='all'||e.actor===rf||e.recipients.includes(rf))&&(tf==='all'||(tf==='intervention'?['storm','delay','donation'].includes(e.type):tf==='crisis'?e.type==='crisis'||e.type==='spoilage'||e.text.includes('refrigerator')||e.text.includes('cold-store'):e.type===tf))).slice(-60).reverse();
  el('feed').innerHTML=events.map(e=>`<div class="entry"><time>${time(e.tick)}</time><span class="event-icon">${({talk:'☏',work:'⚒',buy:'♧',storm:'☁',donation:'♡',shipment:'▣',delay:'◷'} as Record<string,string>)[e.type]??'·'}</span><div>${esc(e.text)}<span class="sr-only">Event ${e.id}</span></div></div>`).join('')||'<div class="empty">The journal is waiting for its first little moment. Press Play or Step.</div>';
  el<HTMLInputElement>('scrub').max=String(game.events.length);el<HTMLInputElement>('scrub').value=String(replayAt??game.events.length);el<HTMLInputElement>('scrub').disabled=replayAt===null;el('replay-label').textContent=replayAt===null?'Live':`${replayAt} / ${game.events.length}`;el('return').hidden=replayAt===null;
- for(const b of document.querySelectorAll<HTMLButtonElement>('[data-intervention],#play,#step'))b.disabled=replayAt!==null;
+ applyLocks();
 }
 el('buildings').innerHTML=Object.entries(places).map(([id,p])=>`<div class="building ${id.includes('home')?'home':id}" style="left:${p.x}%;top:${p.y}%"><span class="structure"></span><small>${p.name}</small></div>`).join('');
 for(const r of game.world.residents)el('resident-filter').insertAdjacentHTML('beforeend',`<option value="${r.id}">${r.name}</option>`);
-document.addEventListener('click',e=>{const target=(e.target as HTMLElement).closest<HTMLElement>('[data-resident],[data-intervention]');if(target?.dataset.resident){selected=target.dataset.resident;render();}if(target?.dataset.intervention&&replayAt===null){intervene(game,target.dataset.intervention as 'storm'|'delay'|'donation');render();message('Your nudge is now part of the story.');}});
+document.addEventListener('click',e=>{const target=(e.target as HTMLElement).closest<HTMLElement>('[data-resident],[data-intervention]');if(target?.dataset.resident){selected=target.dataset.resident;render();}if(target?.dataset.intervention&&replayAt===null&&!aiBusy){intervene(game,target.dataset.intervention as 'storm'|'delay'|'donation');render();message('Your nudge is now part of the story.');}});
 el('play').onclick=()=>{if(playing){pause();return;}playing=true;el('play').textContent='Ⅱ Pause';timer=setInterval(tick,Number(el<HTMLSelectElement>('speed').value));};
 el('step').onclick=()=>{pause();tick();};el('speed').onchange=()=>{if(playing){pause();el('play').click();}};
-el('reset').onclick=()=>{pause();if(game.events.length&&!confirm('Start a fresh village? Save first if you want to keep this story.'))return;game=create();replayAt=null;render();};
+el('reset').onclick=()=>{pause();if(game.events.length&&!confirm('Start a fresh village? Save first if you want to keep this story.'))return;game=create();replayAt=null;lastHostedTick=-Infinity;render();};
 el('save').onclick=()=>{pause();const blob=new Blob([save(game)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`little-world-day-${Math.floor(game.world.tick/96)+1}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('World saved. Keep the JSON file to revisit this story.');};
-el('load').onclick=()=>{pause();el<HTMLInputElement>('file').click();};el('file').onchange=async()=>{const input=el<HTMLInputElement>('file'),file=input.files?.[0];if(!file)return;try{if(file.size>40_000_000)throw Error('Choose a save smaller than 40 MB.');const next=load(await file.text());game=next;replayAt=null;render();message('Your village is back, just as you left it.');}catch(e){message(`Could not load: ${(e as Error).message}`);}input.value='';};
+el('load').onclick=()=>{pause();el<HTMLInputElement>('file').click();};el('file').onchange=async()=>{const input=el<HTMLInputElement>('file'),file=input.files?.[0];if(!file)return;if(aiBusy){message('Wait for Dev’s decision before loading a world.');input.value='';return;}try{if(file.size>40_000_000)throw Error('Choose a save smaller than 40 MB.');const next=load(await file.text());game=next;replayAt=null;lastHostedTick=-Infinity;render();message('Your village is back, just as you left it.');}catch(e){message(`Could not load: ${(e as Error).message}`);}input.value='';};
 el('replay').onclick=()=>{pause();replayAt=0;render();};el('scrub').oninput=()=>{replayAt=Number(el<HTMLInputElement>('scrub').value);render();};el('return').onclick=()=>{replayAt=null;render();};
 for(const id of ['resident-filter','type-filter','decisions'])el(id).onchange=render;
 render();
@@ -45,3 +72,6 @@ el('compare').onclick=()=>{
   el('comparison-result').innerHTML=`<p class="knowledge-note">Two separate 24-hour runs from your world’s original snapshot, using the same random state and rules. ${scarce?'Both start with 2 market meals, an empty reserve, and hungry residents carrying no food.':'Both use the original food supplies.'} Only the second run gets an eight-hour shipment delay. Your live village is unchanged. “Hungry” means hunger of 70 or higher.</p><div class="table-scroll"><table><caption class="sr-only">Two mornings comparison</caption><thead><tr><th scope="col">What happened</th><th scope="col">Normal delivery</th><th scope="col">8-hour delay</th></tr></thead><tbody>${rows.map(([label,a,b])=>`<tr><th scope="row">${label}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table></div><p class="knowledge-note">Meals shared by neighbor (normal / delayed): ${game.initial.residents.map(r=>`${r.name} ${normal.gifts[r.id]} / ${delayed.gifts[r.id]}`).join(' · ')}.</p>`;
  }catch(error){message(`Comparison failed: ${(error as Error).message}`);}finally{b.disabled=false;b.textContent='Compare two days →';}},30);
 };
+
+el('ai-enabled').onchange=()=>{lastHostedTick=-Infinity;message(el<HTMLInputElement>('ai-enabled').checked?'Dev will use hosted AI for occasional decisions. API charges may apply.':'All six residents are back on offline rules.');};
+void refreshAI();
