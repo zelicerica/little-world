@@ -40,7 +40,7 @@ Then visit http://localhost:4173. This serving command is provided for local use
 - `src/engine.ts`: types, scenario constants, seeded clock, legal actions, offline decisions, events, knowledge views, validation, compact saves, and replay.
 - `src/ui.ts`: map, resident inspector, journal filters, controls, interventions, and file handling.
 - `src/style.css`: responsive illustrated map and interface; reduced-motion support.
-- `tests/engine.test.mjs`: 45 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
+- `tests/*.test.mjs`: 52 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
 - `scripts/build.mjs`: static asset copying and standalone HTML packaging.
 
 Actions take one or two ticks. The engine queues and completes them in stable resident order. Money transfers between residents and the town; meals and supplies have recorded external sources or consumption. Workshop repair uses supplies. Garden harvests stop during storms. The courier visits the garden, earns Emi’s trust through conversations, loads up to three reserve meals, then travels to the market and unloads them. Those meals remain in his inventory during travel and can be eaten if he gets hungry. Residents become uncomfortable when hungry; health bottoms out at 30 and nobody dies.
@@ -53,9 +53,9 @@ Saves are schema version 1. The compact belief pool deduplicates repeated memori
 
 TypeScript checks, static build, all 45 automated tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
 
-This prototype uses transparent offline rules, not an LLM. Personalities affect priorities, but policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
+The default simulation uses transparent offline rules; optional hosted decisions use an LLM. Personalities affect priorities, but policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
 
-Replay retains snapshots in memory and is intended for short stories. The interface stops before 12,000 events; imported saves are limited to 40 MB. Save, then reset for a fresh story. No automatic background persistence, undo branching, or cloud deployment is implemented. An opt-in hosted provider for Dev is available through the local server; it has not been tested with a live API key.
+Replay retains snapshots in memory and is intended for short stories. The interface stops before 12,000 events; imported saves are limited to 40 MB. Save, then reset for a fresh story. No automatic background persistence, undo branching, or cloud deployment is implemented. An opt-in hosted provider for all six residents is available through the local server. The user confirmed live hosted Dev requests in version 1.3; version 1.4 is tested here with mocks.
 
 Next useful extension: longer-term schedules and richer negotiation, then an optional server-side model adapter after explicitly choosing a provider and spending budget.
 
@@ -97,7 +97,7 @@ Version 1.2 passes 33 tests, TypeScript checking, and the standalone build. Test
 
 Existing version-1 saves still load and do not gain an outage spontaneously. New storms use the new mechanics; old event history replays unchanged. This is a deterministic story mechanic: procurement is immediate, funding uses a fixed reserve rule, trust counts shared moments, and health recovery is simplified. No model calls or paid services are involved.
 
-## Version 1.3 — optional hosted API for Dev
+## Version 1.4 — optional hosted API for all six residents
 
 The standalone HTML still runs entirely offline. **Hosted AI runs through the local Node server**, with the browser opening http://127.0.0.1:4173. The API key stays on your computer in an ignored environment file. The model service itself is hosted by OpenAI; no website deployment is needed.
 
@@ -109,7 +109,7 @@ The default model is `gpt-5.4-mini`, selected after checking the official model 
 2. Install Node.js 22.9 or newer if it is not already installed.
 3. Copy `.env.example` to `.env.local` in the project folder. Edit `.env.local` locally with a text editor. Put your API key in `OPENAI_API_KEY`, set `LITTLE_WORLD_AI_ENABLED=true`, and review the model and limits. Do not paste keys into chat or commit `.env.local`.
 4. Double-click `Start_Little_World.cmd`. It installs dependencies if they are missing and starts the local server. This Windows launcher has not been exercised in Windows here.
-5. Open the printed local URL. Turn on **Let Dev use hosted AI**, then press Play or Step. API calls start only after that opt-in and a simulation step. Close the terminal or press Ctrl+C to stop the server.
+5. Open the printed local URL. Turn on **Let all six use hosted AI**, then press Play or Step. API calls start only after that opt-in and a simulation step. Close the terminal or press Ctrl+C to stop the server.
 
 The equivalent terminal commands, from the extracted project directory, are:
 
@@ -122,8 +122,8 @@ npm start
 
 ### Boundaries and limits
 
-- Only Dev uses the hosted adapter. The other five residents use the existing deterministic policies. Dev uses offline rules between hosted turns; a model request is attempted at most once every four simulated ticks when he is choosing an action.
-- The provider receives only Dev’s bounded memories, personal state, relationships, legal action choices, local resources, and visible nearby residents. Neighbor memories and town-wide state are omitted. Memory text is explicitly treated as untrusted story data.
+- All six residents use the hosted adapter when enabled, rotating in cast order. A busy resident keeps their place until ready. At most one request is attempted every four simulated ticks, across the whole village. Everyone uses offline rules between model turns. The request cap remains shared, not multiplied by six.
+- The provider receives only the deciding resident’s bounded memories, personal state, relationships, legal action choices, local resources, and visible nearby residents. Neighbor memories and town-wide state are omitted. Memory text is explicitly treated as untrusted story data.
 - The model returns an index from the legal list, a public reason, and optional short dialogue. The engine validates the index and applies the selected action. Creative dialogue is labeled flavor, never inserted as new evidence into resident beliefs. Actual talk actions still transmit only known facts with provenance.
 - Default limits: 20 provider attempts per server run shared by all tabs, one concurrent request, no retries, 256 output tokens, an 8-second provider deadline, and a 20 KB model-context limit. Failed calls consume an attempt. These are request/output bounds, **not a dollar spending cap**. Configure provider-side spending controls separately; usage is charged by your provider. Restarting the server resets the local counter.
 - The page shows model and attempt counts. Token totals, where available, reflect successful validated responses; failed requests can still incur provider charges without reported token counts.
@@ -134,10 +134,20 @@ npm start
 
 Code: `src/hosted.ts` bounds context; `server/provider.mjs` uses the version-matched AI SDK/OpenAI provider; `server/app.mjs` implements local serving, validation, limits, and redacted errors; `server/start.mjs` starts the listener. No API key is present in source, bundles, example environment files, saves, or logs.
 
-All **45 tests pass**, including actual loopback HTTP tests and a mocked transport through the real installed AI SDK. No paid/live model request, API account setup, Windows launcher run, or new browser visual check was performed. Existing saves remain compatible. Optional hosted behavior is not deterministic; recorded replay remains deterministic.
+All **52 tests pass**, including actual loopback HTTP tests and a mocked transport through the real installed AI SDK. No paid/live model request, API account setup, Windows launcher run, or new browser visual check was performed. Existing saves remain compatible. Optional hosted behavior is not deterministic; recorded replay remains deterministic.
 
 Official references checked during implementation:
 - https://developers.openai.com/api/docs/models/gpt-5.4-mini
 - https://developers.openai.com/api/docs/guides/structured-outputs
 
-Next setup step: configure your own API account/key locally, review limits, and make one observed request before running a full simulation.
+### Compare the same refrigerator crisis
+
+Click **Run crisis comparison (uses API)** to run two isolated 24-hour trials from the original snapshot and random state. Both receive the same storm/outage. One uses offline rules; the other rotates hosted opportunities among all six residents, with rules between those turns and on failures. The local comparison limit defaults to 12 and can be 1–20; it also respects the server’s remaining shared budget. This button explicitly opts into paid calls even if live hosted mode is unchecked. No experiment runs automatically.
+
+The table reports repair time, spoiled meals, combined hours with hunger at least 70, successful gifts/conversations, budget, and hosted opportunities/accepted choices. These are observations from one mixed-policy trial, not evidence of general model superiority. Download each trial as a normal save to load and replay without more calls, or download the paired report. Cancel stops further requests; completed provider requests still count. Your live village remains unchanged.
+
+### Update an existing Windows installation
+
+Stop the old server. Download and extract the current full repository into a new folder, copy your existing private `.env.local` into that folder locally, then run `Start_Little_World.cmd` there. Keep the old folder until the new version works. A fresh folder installs the updated dependencies automatically. If updating the old folder in place, run `npm ci` before restarting. Your existing request limit remains shared by all six residents; there is no need to increase it. Refresh the local page and enable **Let all six use hosted AI**.
+
+Version 1.4 received type checks, 52 automated tests, loopback HTTP integration checks, and standalone script syntax validation. No paid model calls or browser visual/interaction check of version 1.4 were run here.

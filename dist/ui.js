@@ -1,15 +1,17 @@
 import { hostedRequest } from './hosted.js';
-import { create, step, stepHosted, intervene, places, time, load, save, replay, compareMornings, fridgeKnowledge } from './engine.js';
+import { create, step, stepHosted, intervene, places, time, load, save, replay, compareMornings, compareCrisis, hostedSchedule, fridgeKnowledge } from './engine.js';
 const el = (id) => document.getElementById(id);
-let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20, lastHostedTick = -Infinity;
+let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20;
+let schedule = hostedSchedule(), lastRequestAt = 0, experimentAbort, crisisResult;
 let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
 const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function message(s) { el('message').textContent = s; el('message').style.display = 'block'; setTimeout(() => el('message').style.display = 'none', 4500); }
 function pause() { playing = false; clearInterval(timer); el('play').textContent = '▶ Play'; }
-function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for Dev’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
+function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for a resident’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
 function applyLocks() {
-    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare'))
+    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare,#crisis-compare,#crisis-limit,#download-offline,#download-hosted,#download-comparison'))
         b.disabled = aiBusy || (replayAt !== null && (b.matches('[data-intervention],#step')));
+    el('crisis-compare').disabled = aiBusy || !aiReady;
     el('ai-enabled').disabled = !aiReady || aiBusy || replayAt !== null;
     el('play').disabled = replayAt !== null;
     aiStatus();
@@ -45,15 +47,7 @@ async function tick() {
     applyLocks();
     try {
         if (el('ai-enabled').checked && aiReady) {
-            await stepHosted(game, async (v) => {
-                if (v.tick - lastHostedTick < 4)
-                    return { ok: false, reason: 'cadence' };
-                lastHostedTick = v.tick;
-                const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: AbortSignal.timeout(20000) });
-                if (!response.ok)
-                    return { ok: false, reason: 'provider-error' };
-                return response.json();
-            });
+            await stepHosted(game, requestDecision, schedule(game));
         }
         else
             step(game);
@@ -122,12 +116,12 @@ el('speed').onchange = () => { if (playing) {
     el('play').click();
 } };
 el('reset').onclick = () => { pause(); if (game.events.length && !confirm('Start a fresh village? Save first if you want to keep this story.'))
-    return; game = create(); replayAt = null; lastHostedTick = -Infinity; render(); };
+    return; game = create(); replayAt = null; schedule = hostedSchedule(); render(); };
 el('save').onclick = () => { pause(); const blob = new Blob([save(game)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `little-world-day-${Math.floor(game.world.tick / 96) + 1}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('World saved. Keep the JSON file to revisit this story.'); };
 el('load').onclick = () => { pause(); el('file').click(); };
 el('file').onchange = async () => { const input = el('file'), file = input.files?.[0]; if (!file)
     return; if (aiBusy) {
-    message('Wait for Dev’s decision before loading a world.');
+    message('Wait for the current decision before loading a world.');
     input.value = '';
     return;
 } try {
@@ -136,7 +130,7 @@ el('file').onchange = async () => { const input = el('file'), file = input.files
     const next = load(await file.text());
     game = next;
     replayAt = null;
-    lastHostedTick = -Infinity;
+    schedule = hostedSchedule();
     render();
     message('Your village is back, just as you left it.');
 }
@@ -169,5 +163,75 @@ el('compare').onclick = () => {
         }
     }, 30);
 };
-el('ai-enabled').onchange = () => { lastHostedTick = -Infinity; message(el('ai-enabled').checked ? 'Dev will use hosted AI for occasional decisions. API charges may apply.' : 'All six residents are back on offline rules.'); };
+el('ai-enabled').onchange = () => { schedule = hostedSchedule(); message(el('ai-enabled').checked ? 'All six residents can take turns using hosted AI. They share one request budget.' : 'All six residents are back on offline rules.'); };
 void refreshAI();
+async function requestDecision(v, signal) {
+    const signals = [AbortSignal.timeout(20000), ...(signal ? [signal] : [])], combined = AbortSignal.any(signals);
+    const delay = Math.max(0, 1050 - (Date.now() - lastRequestAt));
+    if (delay)
+        await new Promise((resolve, reject) => {
+            combined.throwIfAborted();
+            const abort = () => { clearTimeout(timer); reject(combined.reason); };
+            const timer = setTimeout(() => { combined.removeEventListener('abort', abort); resolve(); }, delay);
+            combined.addEventListener('abort', abort, { once: true });
+        });
+    combined.throwIfAborted();
+    lastRequestAt = Date.now();
+    const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: combined });
+    if (!response.ok)
+        return { ok: false, reason: 'provider-error' };
+    return response.json();
+}
+function downloadJson(value, name) {
+    const url = URL.createObjectURL(new Blob([typeof value === 'string' ? value : JSON.stringify(value)], { type: 'application/json' })), a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+el('crisis-cancel').onclick = () => experimentAbort?.abort();
+el('crisis-compare').onclick = async () => {
+    if (aiBusy || !aiReady)
+        return;
+    pause();
+    aiBusy = true;
+    experimentAbort = new AbortController();
+    applyLocks();
+    el('crisis-cancel').hidden = false;
+    el('crisis-result').textContent = 'Running two separate days… Hosted requests may take a few minutes.';
+    try {
+        await refreshAI();
+        const limit = Number(el('crisis-limit').value);
+        if (!Number.isSafeInteger(limit) || limit < 1 || limit > 20)
+            throw Error('Choose 1–20 requests.');
+        if (aiAttempts >= aiMax)
+            throw Error('The shared server request budget is exhausted.');
+        let used = 0;
+        crisisResult = await compareCrisis(game.initial, async (v) => {
+            el('crisis-result').textContent = `Hosted opportunity ${++used}/${Math.min(limit, aiMax - aiAttempts)}: ${v.self.name}. The live village is unchanged.`;
+            return requestDecision(v, experimentAbort.signal);
+        }, Math.min(limit, aiMax - aiAttempts), experimentAbort.signal);
+        const a = crisisResult.offline.metrics, b = crisisResult.hosted.metrics;
+        const rows = [['Minutes until refrigerator repaired', a.repairMinutes ?? 'Not within 24 hours', b.repairMinutes ?? 'Not within 24 hours'], ['Meals spoiled', a.spoiled, b.spoiled], ['Combined hours hungry (hunger ≥70)', a.hungryHours, b.hungryHours], ['Meals shared', a.mealsShared, b.mealsShared], ['Conversations', a.conversations, b.conversations], ['Town coins left', a.budget, b.budget], ['Hosted opportunities / accepted choices', '0 / 0', `${b.attempts} / ${b.accepted}`]];
+        el('crisis-result').innerHTML = `<p class="knowledge-note">Same original snapshot and random state, same storm, 24 hours each. The hosted run rotates among six residents, with rules between model turns and on failures. One trial cannot establish which policy is better. Your live village is unchanged.</p><div class="table-scroll"><table><thead><tr><th>What happened</th><th>Offline rules</th><th>Hosted + rules</th></tr></thead><tbody>${rows.map(([label, a, b]) => `<tr><th scope="row">${label}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table></div>`;
+        el('crisis-downloads').hidden = false;
+    }
+    catch (error) {
+        crisisResult = undefined;
+        el('crisis-downloads').hidden = true;
+        el('crisis-result').textContent = experimentAbort.signal.aborted ? 'Comparison cancelled. Completed API requests still count toward your shared budget. Your live village is unchanged.' : `Comparison stopped: ${error.message}`;
+    }
+    finally {
+        experimentAbort = undefined;
+        aiBusy = false;
+        el('crisis-cancel').hidden = true;
+        render();
+        void refreshAI();
+    }
+};
+el('download-offline').onclick = () => { if (crisisResult)
+    downloadJson(save(crisisResult.offline.game), 'little-world-crisis-offline.json'); };
+el('download-hosted').onclick = () => { if (crisisResult)
+    downloadJson(save(crisisResult.hosted.game), 'little-world-crisis-hosted.json'); };
+el('download-comparison').onclick = () => { if (crisisResult)
+    downloadJson({ ...crisisResult, offline: { ...crisisResult.offline, game: JSON.parse(save(crisisResult.offline.game)) }, hosted: { ...crisisResult.hosted, game: JSON.parse(save(crisisResult.hosted.game)) } }, 'little-world-crisis-comparison.json'); };

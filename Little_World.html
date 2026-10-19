@@ -8,12 +8,12 @@
 </style></head><body>
 <header><a class="brand" href="#"><span class="brandmark">✳</span><span>little world<small>A SMALL PLACE. DISTINCT PERSONALITIES.</small></span></a><div class="live"><i></i> OFFLINE VILLAGE <span id="clock"></span></div><div class="header-actions"><button id="save">↓ Save world</button><button id="load">↑ Load</button><input type="file" id="file" accept=".json" hidden></div></header>
 <main><section class="intro"><div><p class="eyebrow">A LIVING LITTLE EXPERIMENT</p><h1>Every day has a story.</h1><p>Six neighbors. A handful of resources. A world that keeps unfolding.</p></div><div class="weather" id="weather">☀ <span>A quiet morning<small>Perfect weather for a fresh start</small></span></div></section>
-<section class="ai-panel"><div><strong>Dev’s next chapter</strong><p>Try hosted AI for the courier. The other five neighbors keep their offline rules.</p><small id="ai-status" role="status">Offline mode. Hosted AI requires the local server.</small></div><label><input type="checkbox" id="ai-enabled" disabled> Let Dev use hosted AI</label></section><section class="dashboard"><div class="village-column"><div class="map-top"><span><i class="dot"></i> THE VILLAGE <span class="muted">· Player’s all-seeing view</span></span><span id="day-label">SEED 42</span></div><div class="map" id="map" aria-label="Village map"><svg class="landscape" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="grass" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M10 14l2-4 2 4M31 32l2-4 2 4" stroke="#88a56d" stroke-width="1" fill="none" opacity=".35"/></pattern></defs><rect width="1000" height="650" fill="#cbd9ac"/><rect width="1000" height="650" fill="url(#grass)"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#94b9b5" stroke-width="65" fill="none"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#b1cebf" stroke-width="42" fill="none"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#b9bd90" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#eee2bd" stroke-width="31" fill="none" stroke-linecap="round"/><ellipse cx="500" cy="320" rx="75" ry="57" fill="#e8d8b2"/><g fill="#789963" stroke="#638452" stroke-width="3"><circle cx="335" cy="375" r="27"/><circle cx="355" cy="357" r="23"/><circle cx="655" cy="107" r="28"/><circle cx="685" cy="122" r="23"/><circle cx="920" cy="325" r="33"/><circle cx="893" cy="353" r="24"/><circle cx="370" cy="565" r="32"/><circle cx="685" cy="560" r="28"/><circle cx="290" cy="68" r="20"/><circle cx="164" cy="392" r="23"/></g><g fill="#efe3aa"><circle cx="360" cy="250" r="3"/><circle cx="368" cy="256" r="3"/><circle cx="690" cy="375" r="3"/><circle cx="700" cy="380" r="3"/><circle cx="331" cy="520" r="3"/></g><path d="M55 305L133 305" stroke="#a58663" stroke-width="32"/><path d="M55 305L133 305" stroke="#c8ae81" stroke-width="24"/></svg><div id="buildings"></div><div id="residents"></div><div class="map-caption">Click a neighbor to see their world.</div><div class="compass">N<br>↑</div></div>
+<section class="ai-panel"><div><strong>Six neighbors, six perspectives</strong><p>All six residents can take turns using hosted AI, each with their own memories and personality. One shared request budget.</p><small id="ai-status" role="status">Offline mode. Hosted AI requires the local server.</small></div><label><input type="checkbox" id="ai-enabled" disabled> Let all six use hosted AI</label></section><section class="dashboard"><div class="village-column"><div class="map-top"><span><i class="dot"></i> THE VILLAGE <span class="muted">· Player’s all-seeing view</span></span><span id="day-label">SEED 42</span></div><div class="map" id="map" aria-label="Village map"><svg class="landscape" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="grass" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M10 14l2-4 2 4M31 32l2-4 2 4" stroke="#88a56d" stroke-width="1" fill="none" opacity=".35"/></pattern></defs><rect width="1000" height="650" fill="#cbd9ac"/><rect width="1000" height="650" fill="url(#grass)"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#94b9b5" stroke-width="65" fill="none"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#b1cebf" stroke-width="42" fill="none"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#b9bd90" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#eee2bd" stroke-width="31" fill="none" stroke-linecap="round"/><ellipse cx="500" cy="320" rx="75" ry="57" fill="#e8d8b2"/><g fill="#789963" stroke="#638452" stroke-width="3"><circle cx="335" cy="375" r="27"/><circle cx="355" cy="357" r="23"/><circle cx="655" cy="107" r="28"/><circle cx="685" cy="122" r="23"/><circle cx="920" cy="325" r="33"/><circle cx="893" cy="353" r="24"/><circle cx="370" cy="565" r="32"/><circle cx="685" cy="560" r="28"/><circle cx="290" cy="68" r="20"/><circle cx="164" cy="392" r="23"/></g><g fill="#efe3aa"><circle cx="360" cy="250" r="3"/><circle cx="368" cy="256" r="3"/><circle cx="690" cy="375" r="3"/><circle cx="700" cy="380" r="3"/><circle cx="331" cy="520" r="3"/></g><path d="M55 305L133 305" stroke="#a58663" stroke-width="32"/><path d="M55 305L133 305" stroke="#c8ae81" stroke-width="24"/></svg><div id="buildings"></div><div id="residents"></div><div class="map-caption">Click a neighbor to see their world.</div><div class="compass">N<br>↑</div></div>
 <div class="controls"><div class="play-controls"><button id="play" class="primary">▶ Play</button><button id="step" title="Advance fifteen minutes">Step →</button><label>Speed <select id="speed"><option value="1000">1×</option><option value="400">2×</option><option value="120">5×</option></select></label></div><button id="reset" class="text-button">↺ New day</button></div><div class="stats" id="stats"></div><section id="crisis" class="crisis-panel" aria-label="Cold-store crisis" hidden></section>
 <section class="interventions"><div><p class="eyebrow">A LITTLE CHANGE GOES A LONG WAY</p><h2>Give the story a nudge.</h2></div><div class="intervention-grid"><button data-intervention="storm"><span>☁</span><strong>Storm &amp; cold-store outage</strong><small>Damage the refrigerator; test cooperation</small></button><button data-intervention="delay"><span>◷</span><strong>Delay a shipment</strong><small>Put the food supply to the test</small></button><button data-intervention="donation"><span>♡</span><strong>Leave a donation</strong><small>Add 100 coins, anonymously</small></button></div></section></div>
 <aside class="inspector"><div class="panel-label">MEET YOUR NEIGHBORS <span>06</span></div><div class="cast" id="cast"></div><div id="inspector-content"></div></aside></section>
-<section class="comparison"><div class="journal-heading"><div><p class="eyebrow">SAME VILLAGE. ONE DIFFERENT DELIVERY.</p><h2>What changes when food runs late?</h2></div><button id="compare">Compare two days →</button></div><label class="comparison-option"><input type="checkbox" id="scarce" checked> Test a food shortage in both runs</label><div id="comparison-result" aria-live="polite"><p class="knowledge-note">Compare two complete days without changing your current story. One shipment arrives eight hours late. Leave the shortage option on to make the tradeoffs easier to see.</p></div></section><section class="journal"><div class="journal-heading"><div><p class="eyebrow">THE VILLAGE JOURNAL</p><h2>Little moments, unfolding.</h2></div><div class="filters"><label class="sr-only" for="resident-filter">Filter resident</label><select id="resident-filter"><option value="all">All neighbors</option></select><label class="sr-only" for="type-filter">Filter event type</label><select id="type-filter"><option value="all">All moments</option><option value="talk">Conversations</option><option value="work">Work</option><option value="crisis">Cold-store crisis</option><option value="ai">Hosted AI &amp; fallbacks</option><option value="buy">Food purchases</option><option value="intervention">Your interventions</option><option value="shipment">Shipments</option></select><label><input type="checkbox" id="decisions"> Decisions</label></div></div><div id="feed" class="feed"></div></section>
-<section class="replay-panel"><div><strong>Revisit the story</strong><small>Replay recorded events without asking residents to decide again.</small></div><button id="replay">↶ Replay</button><input aria-label="Replay position" type="range" id="scrub" min="0" value="0" max="0" disabled><span id="replay-label">Live</span><button id="return" hidden>Return to live</button></section><p class="footnote">Built for curiosity. Decisions follow offline rules. Memories belong to each neighbor.<br>Money and resources follow the village’s rules; outside shipments and gifts are recorded.</p><div id="message" role="status" aria-live="polite"></div></main><script type="module">const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76, bufferMeals: 3, trustToRelease: 2, wagePauseAt: 40, wageResumeAt: 60, supplyCost: 12, supplyBatch: 6, fridgeCost: 18, fridgeParts: 3, fridgeRepairStep: 34, spoilInterval: 4, spoilBatch: 2 };
+<section class="comparison"><div class="journal-heading"><div><p class="eyebrow">SAME VILLAGE. ONE DIFFERENT DELIVERY.</p><h2>What changes when food runs late?</h2></div><button id="compare">Compare two days →</button></div><label class="comparison-option"><input type="checkbox" id="scarce" checked> Test a food shortage in both runs</label><div id="comparison-result" aria-live="polite"><p class="knowledge-note">Compare two complete days without changing your current story. One shipment arrives eight hours late. Leave the shortage option on to make the tradeoffs easier to see.</p></div></section><section class="comparison"><div class="journal-heading"><div><p class="eyebrow">SAME CRISIS. TWO WAYS TO DECIDE.</p><h2>Rules versus hosted residents</h2></div><button id="crisis-compare" disabled>Run crisis comparison (uses API)</button></div><label>Maximum hosted requests for this comparison <input id="crisis-limit" type="number" min="1" max="20" value="12"></label> <button id="crisis-cancel" hidden>Cancel comparison</button><div id="crisis-result" aria-live="polite"><p class="knowledge-note">Two separate 24-hour trials start from your original snapshot with the same refrigerator failure. Hosted calls share the server’s remaining budget. Your live village stays unchanged.</p></div><div id="crisis-downloads" hidden><button id="download-offline">Save offline trial</button> <button id="download-hosted">Save hosted trial</button> <button id="download-comparison">Save comparison report</button><p class="knowledge-note">Open either trial with Load world to inspect its residents and replay the recorded decisions. The comparison report contains both trials and their metrics.</p></div></section><section class="journal"><div class="journal-heading"><div><p class="eyebrow">THE VILLAGE JOURNAL</p><h2>Little moments, unfolding.</h2></div><div class="filters"><label class="sr-only" for="resident-filter">Filter resident</label><select id="resident-filter"><option value="all">All neighbors</option></select><label class="sr-only" for="type-filter">Filter event type</label><select id="type-filter"><option value="all">All moments</option><option value="talk">Conversations</option><option value="work">Work</option><option value="crisis">Cold-store crisis</option><option value="ai">Hosted AI &amp; fallbacks</option><option value="buy">Food purchases</option><option value="intervention">Your interventions</option><option value="shipment">Shipments</option></select><label><input type="checkbox" id="decisions"> Decisions</label></div></div><div id="feed" class="feed"></div></section>
+<section class="replay-panel"><div><strong>Revisit the story</strong><small>Replay recorded events without asking residents to decide again.</small></div><button id="replay">↶ Replay</button><input aria-label="Replay position" type="range" id="scrub" min="0" value="0" max="0" disabled><span id="replay-label">Live</span><button id="return" hidden>Return to live</button></section><p class="footnote">Built for curiosity. Decisions use offline rules or optional hosted AI. Memories belong to each neighbor.<br>Money and resources follow the village’s rules; outside shipments and gifts are recorded.</p><div id="message" role="status" aria-live="polite"></div></main><script type="module">const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76, bufferMeals: 3, trustToRelease: 2, wagePauseAt: 40, wageResumeAt: 60, supplyCost: 12, supplyBatch: 6, fridgeCost: 18, fridgeParts: 3, fridgeRepairStep: 34, spoilInterval: 4, spoilBatch: 2 };
 const places = { grocer: { name: 'Ada’s Market', x: 24, y: 28, icon: '🥕' }, clinic: { name: 'Cleo’s Clinic', x: 76, y: 27, icon: '✚' }, workshop: { name: 'The Workshop', x: 78, y: 67, icon: '⚒' }, garden: { name: 'Community Garden', x: 23, y: 68, icon: '🌱' }, hall: { name: 'Town Hall', x: 50, y: 18, icon: '⚑' }, square: { name: 'Village Square', x: 50, y: 49, icon: '⛲' }, 'ada-home': { name: 'Ada’s home', x: 12, y: 12, icon: '⌂' }, 'ben-home': { name: 'Ben’s home', x: 88, y: 84, icon: '⌂' }, 'cleo-home': { name: 'Cleo’s home', x: 88, y: 12, icon: '⌂' }, 'dev-home': { name: 'Dev’s home', x: 55, y: 84, icon: '⌂' }, 'emi-home': { name: 'Emi’s home', x: 12, y: 84, icon: '⌂' }, 'finn-home': { name: 'Finn’s home', x: 38, y: 8, icon: '⌂' } };
 function create(seed = 42) {
     const cast = [['ada', 'Ada', 'Grocer', 'Cautious', 'Keep food available', 'grocer', '#d48348'], ['ben', 'Ben', 'Mechanic', 'Practical', 'Repair workshop equipment', 'workshop', '#607da6'], ['cleo', 'Cleo', 'Clinician', 'Generous', 'Keep residents healthy', 'clinic', '#b8798a'], ['dev', 'Dev', 'Courier', 'Sociable', 'Deliver supplies reliably', 'square', '#a48c43'], ['emi', 'Emi', 'Gardener', 'Independent', 'Grow a food reserve', 'garden', '#729361'], ['finn', 'Finn', 'Clerk', 'Orderly', 'Balance the town budget', 'hall', '#8c78aa']];
@@ -89,6 +89,19 @@ function legal(w, r) {
     }
     return actions;
 }
+function actionLabel(a) {
+    const names = { ada: 'Ada', ben: 'Ben', cleo: 'Cleo', dev: 'Dev', emi: 'Emi', finn: 'Finn' };
+    const work = { 'budget-review': 'review the town budget', 'fund-supplies': 'fund workshop supplies', 'fund-fridge': 'fund refrigerator parts', 'repair-fridge': 'repair the refrigerator', triage: 'treat residents at the market', collect: 'collect garden meals', deliver: 'deliver meals to the market' };
+    if (a.kind === 'move')
+        return `walk to ${places[a.target]?.name ?? 'a destination'}`;
+    if (a.kind === 'work')
+        return work[a.target ?? ''] ?? 'work at my job';
+    if (a.kind === 'talk')
+        return `share a known fact with ${names[a.target ?? ''] ?? 'a neighbor'}`;
+    if (a.kind === 'give')
+        return `give a meal to ${names[a.target ?? ''] ?? 'a neighbor'}`;
+    return { eat: 'eat a meal', buy: 'buy a meal', rest: 'rest', wait: 'wait and observe' }[a.kind];
+}
 function act(g, a, reason) {
     if (!a || !g.world.residents.some(r => r.id === a.actor))
         return false;
@@ -101,7 +114,7 @@ function act(g, a, reason) {
     r.status = a.kind === 'move' ? `Walking to ${places[a.target].name}` : `${a.kind[0].toUpperCase() + a.kind.slice(1)}ing`;
     if (reason)
         r.lastDecision = reason;
-    emit(g, before, r.id, 'decision', `${r.name} chose to ${a.kind}${a.target ? ` → ${places[a.target]?.name ?? a.target}` : ''}.${reason ? ` ${reason}` : ''}`, [], undefined);
+    emit(g, before, r.id, 'decision', `${r.name} chose to ${actionLabel(a)}.${reason ? ` ${reason}` : ''}`, [], undefined);
     return true;
 }
 function view(w, r) {
@@ -497,19 +510,19 @@ function step(g) {
     while (!next.done)
         next = iterator.next(decide(next.value));
 }
-async function stepHosted(g, propose) {
+async function stepHosted(g, propose, residents = g.world.residents.map(r => r.id)) {
     const iterator = advanceDecisions(g);
     let next = iterator.next();
     while (!next.done) {
         const v = next.value;
         let decision = decide(v), record;
-        if (v.self.id === 'dev') {
+        if (residents.includes(v.self.id)) {
             try {
                 const raw = await propose(structuredClone(v));
                 const reply = raw;
                 if (reply?.ok === true && Number.isInteger(reply.actionIndex) && reply.actionIndex >= 0 && reply.actionIndex < v.legalActions.length && typeof reply.reason === 'string' && reply.reason.length > 0 && reply.reason.length <= 240 && typeof reply.dialogue === 'string' && reply.dialogue.length <= 160 && typeof reply.model === 'string' && /^[a-zA-Z0-9._-]{1,80}$/.test(reply.model)) {
                     decision = { action: v.legalActions[reply.actionIndex], reason: `Hosted ${reply.model}: ${reply.reason}` };
-                    record = { text: `Dev used ${reply.model} to choose legal action ${reply.actionIndex}. ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
+                    record = { text: `${v.self.name} used ${reply.model} to ${actionLabel(decision.action)}. ${reply.reason} ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
                 }
                 else if (reply?.ok === false && reply.reason === 'cadence') {
                     // Between model turns, the offline policy keeps the village moving.
@@ -517,16 +530,16 @@ async function stepHosted(g, propose) {
                 else {
                     const safe = ['disabled', 'missing-key', 'budget', 'timeout', 'provider-error', 'malformed', 'busy', 'not-ready', 'cancelled'].includes(reply?.reason ?? '') ? reply.reason : 'malformed';
                     decision.reason = `Offline fallback (${safe}). ${decision.reason}`;
-                    record = { text: `Dev used the offline policy: ${safe}.` };
+                    record = { text: `${v.self.name} used the offline policy: ${safe}.` };
                 }
             }
             catch {
                 decision.reason = `Offline fallback (provider-error). ${decision.reason}`;
-                record = { text: 'Dev used the offline policy: provider-error.' };
+                record = { text: `${v.self.name} used the offline policy: provider-error.` };
             }
         }
         if (record)
-            emit(g, structuredClone(g.world), 'dev', 'ai', record.text, []);
+            emit(g, structuredClone(g.world), v.self.id, 'ai', record.text, []);
         next = iterator.next(decision);
     }
 }
@@ -708,6 +721,52 @@ function compareMornings(initial, scarce = false) {
     }
     return { normal: run(false), delayed: run(true) };
 }
+// One resident gets an opportunity every simulated hour, rotating fairly among ready residents.
+function hostedSchedule() {
+    let cursor = 0, lastTick = -Infinity;
+    return (g) => {
+        const tick = g.world.tick + 1;
+        if (tick - lastTick < 4)
+            return [];
+        const people = g.world.residents;
+        const r = people[cursor % people.length];
+        if (!r.pending || r.busyUntil <= tick) {
+            cursor = (cursor + 1) % people.length;
+            lastTick = tick;
+            return [r.id];
+        }
+        return [];
+    };
+}
+async function compareCrisis(initial, propose, requestLimit = 12, signal) {
+    if (!Number.isSafeInteger(requestLimit) || requestLimit < 0 || requestLimit > 100)
+        throw Error('Choose a request limit from 0 to 100.');
+    const make = () => { const world = structuredClone(initial); return { schemaVersion: 1, initial: structuredClone(world), world, events: [] }; };
+    const offline = make(), hosted = make();
+    intervene(offline, 'storm');
+    intervene(hosted, 'storm');
+    const schedule = hostedSchedule();
+    let attempts = 0, accepted = 0, offlineHunger = 0, hostedHunger = 0;
+    for (let i = 0; i < 96; i++) {
+        signal?.throwIfAborted();
+        step(offline);
+        const ids = attempts < requestLimit ? schedule(hosted) : [];
+        await stepHosted(hosted, async (v) => {
+            signal?.throwIfAborted();
+            attempts++;
+            const reply = await propose(v);
+            signal?.throwIfAborted();
+            // Count only choices that pass the engine's full validation, below via its journal.
+            return reply;
+        }, ids);
+        signal?.throwIfAborted();
+        offlineHunger += offline.world.residents.filter(r => r.hunger >= 70).length / 4;
+        hostedHunger += hosted.world.residents.filter(r => r.hunger >= 70).length / 4;
+    }
+    accepted = hosted.events.filter(e => e.type === 'ai' && !e.text.startsWith(`${hosted.world.residents.find(r => r.id === e.actor).name} used the offline policy:`)).length;
+    const summarize = (g, hungryHours, attempts, accepted) => ({ game: g, metrics: { repairMinutes: g.world.fridge?.resolvedTick !== undefined ? (g.world.fridge.resolvedTick - g.world.fridge.startedTick) * 15 : null, spoiled: g.world.fridge?.spoiled ?? 0, hungryHours, mealsShared: g.events.filter(e => e.type === 'give' && e.text.includes(' gave ')).length, conversations: g.events.filter(e => e.type === 'talk' && e.text.includes(' told ')).length, budget: g.world.treasury, attempts, accepted } });
+    return { version: 1, kind: 'little-world-crisis-comparison', offline: summarize(offline, offlineHunger, 0, 0), hosted: summarize(hosted, hostedHunger, attempts, accepted), requestLimit };
+}
 
 const knownIds = new Set(['ada', 'ben', 'cleo', 'dev', 'emi', 'finn']);
 const kinds = new Set(['move', 'buy', 'work', 'eat', 'rest', 'talk', 'give', 'wait']);
@@ -716,9 +775,9 @@ function bounded(value, max = 1_000_000) { if (!Number.isSafeInteger(value) || v
 function short(value, max) { if (typeof value !== 'string' || value.length > max)
     throw Error('Invalid resident context.'); return value; }
 function prepareHostedContext(v) {
-    if (!v || v.self?.id !== 'dev' || !Array.isArray(v.legalActions) || v.legalActions.length > 256 || !Array.isArray(v.self.beliefs) || !Array.isArray(v.nearby))
-        throw Error('Only Dev can use the hosted adapter.');
-    const canonical = create().world.residents.find(r => r.id === 'dev');
+    if (!v || !knownIds.has(v.self?.id) || !Array.isArray(v.legalActions) || v.legalActions.length > 256 || !Array.isArray(v.self.beliefs) || !Array.isArray(v.nearby))
+        throw Error('Invalid resident context.');
+    const canonical = create().world.residents.find(r => r.id === v.self.id);
     const selected = v.self.beliefs.slice(-16), critical = fridgeKnowledge(v.self);
     if (critical && !selected.some(b => b.id === critical.id))
         selected.unshift(critical);
@@ -735,21 +794,23 @@ function prepareHostedContext(v) {
     const memoryIds = new Set(selected.map(b => b.id));
     const memories = selected.map(b => ({ id: short(b.id, 100), text: short(b.text, 1000).slice(0, 300), source: short(b.source, 100), eventId: short(b.eventId, 100), provenance: short(b.provenance, 20), tick: bounded(b.tick), ...(b.observedTick !== undefined ? { observedTick: bounded(b.observedTick) } : {}), ...(b.topic ? { topic: short(b.topic, 30) } : {}), ...(b.amount !== undefined ? { amount: bounded(b.amount) } : {}) }));
     const actions = v.legalActions.map((a, index) => {
-        if (a.actor !== 'dev' || !kinds.has(a.kind) || ![1, 2].includes(a.duration))
+        if (a.actor !== v.self.id || !kinds.has(a.kind) || ![1, 2].includes(a.duration))
             throw Error('Invalid legal action.');
-        return { index, kind: a.kind, duration: a.duration, ...(a.target ? { target: short(a.target, 80) } : {}), ...(a.fact ? { fact: short(a.fact, 100) } : {}) };
+        return { index, label: actionLabel(a), kind: a.kind, duration: a.duration, ...(a.target ? { target: short(a.target, 80) } : {}), ...(a.fact ? { fact: short(a.fact, 100) } : {}) };
     }).filter(a => !a.fact || memoryIds.has(a.fact)).slice(0, 64);
     if (!actions.length)
         throw Error('No legal actions available.');
     const local = { storm: !!v.local?.storm };
-    for (const k of ['marketFood', 'reserve', 'supplies', 'repaired', 'budget'])
-        if (v.local?.[k] !== undefined)
+    for (const k of ['marketFood', 'reserve', 'supplies', 'repaired', 'budget']) {
+        const location = { marketFood: 'grocer', reserve: 'garden', supplies: 'workshop', repaired: 'workshop', budget: 'hall' }[k];
+        if (v.self.location === location && v.local?.[k] !== undefined)
             local[k] = bounded(v.local[k]);
-    if (v.local?.fridge)
+    }
+    if (['grocer', 'workshop'].includes(v.self.location) && v.local?.fridge)
         local.fridge = { progress: bounded(v.local.fridge.progress, 100), parts: bounded(v.local.fridge.parts) };
-    if (v.local?.wagesPaused !== undefined)
+    if (v.self.location === 'hall' && v.local?.wagesPaused !== undefined)
         local.wagesPaused = !!v.local.wagesPaused;
-    const context = { tick: bounded(v.tick), self: { id: 'dev', name: canonical.name, role: canonical.role, trait: canonical.trait, goal: canonical.goal, location: short(v.self.location, 40), money: bounded(v.self.money), food: bounded(v.self.food), hunger: bounded(v.self.hunger, 100), energy: bounded(v.self.energy, 100), health: bounded(v.self.health, 100), relationships: Object.fromEntries(Object.entries(v.self.relationships ?? {}).filter(([id]) => knownIds.has(id)).map(([id, n]) => [id, bounded(n)])) }, local, nearby: v.nearby.slice(0, 5).map(r => { if (!knownIds.has(r.id))
+    const context = { tick: bounded(v.tick), self: { id: canonical.id, name: canonical.name, role: canonical.role, home: canonical.home, job: canonical.job, trait: canonical.trait, goal: canonical.goal, location: short(v.self.location, 40), money: bounded(v.self.money), food: bounded(v.self.food), hunger: bounded(v.self.hunger, 100), energy: bounded(v.self.energy, 100), health: bounded(v.self.health, 100), relationships: Object.fromEntries(Object.entries(v.self.relationships ?? {}).filter(([id]) => knownIds.has(id)).map(([id, n]) => [id, bounded(n)])) }, local, nearby: v.nearby.filter(r => r.location === v.self.location && r.id !== v.self.id).slice(0, 5).map(r => { if (!knownIds.has(r.id))
             throw Error('Invalid neighbor.'); return { id: r.id, name: short(r.name, 30), hunger: bounded(r.hunger, 100), food: bounded(r.food), health: bounded(r.health, 100) }; }), memories, actions };
     if (new TextEncoder().encode(JSON.stringify(context)).length > 20_000)
         throw Error('Resident context is too large.');
@@ -761,15 +822,17 @@ function hostedRequest(v) {
 }
 
 const el = (id) => document.getElementById(id);
-let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20, lastHostedTick = -Infinity;
+let aiBusy = false, aiReady = false, aiNonce = '', aiModel = '', aiAttempts = 0, aiMax = 20;
+let schedule = hostedSchedule(), lastRequestAt = 0, experimentAbort, crisisResult;
 let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
 const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function message(s) { el('message').textContent = s; el('message').style.display = 'block'; setTimeout(() => el('message').style.display = 'none', 4500); }
 function pause() { playing = false; clearInterval(timer); el('play').textContent = '▶ Play'; }
-function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for Dev’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
+function aiStatus() { el('ai-status').textContent = aiBusy ? 'Waiting for a resident’s decision…' : aiReady ? `${aiModel} · ${aiAttempts}/${aiMax} requests used this server run. Hosted calls may incur API charges.` : 'Offline mode. Start the local server and configure .env.local for hosted AI.'; }
 function applyLocks() {
-    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare'))
+    for (const b of document.querySelectorAll('[data-intervention],#step,#save,#load,#reset,#replay,#return,#compare,#crisis-compare,#crisis-limit,#download-offline,#download-hosted,#download-comparison'))
         b.disabled = aiBusy || (replayAt !== null && (b.matches('[data-intervention],#step')));
+    el('crisis-compare').disabled = aiBusy || !aiReady;
     el('ai-enabled').disabled = !aiReady || aiBusy || replayAt !== null;
     el('play').disabled = replayAt !== null;
     aiStatus();
@@ -805,15 +868,7 @@ async function tick() {
     applyLocks();
     try {
         if (el('ai-enabled').checked && aiReady) {
-            await stepHosted(game, async (v) => {
-                if (v.tick - lastHostedTick < 4)
-                    return { ok: false, reason: 'cadence' };
-                lastHostedTick = v.tick;
-                const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: AbortSignal.timeout(20000) });
-                if (!response.ok)
-                    return { ok: false, reason: 'provider-error' };
-                return response.json();
-            });
+            await stepHosted(game, requestDecision, schedule(game));
         }
         else
             step(game);
@@ -882,12 +937,12 @@ el('speed').onchange = () => { if (playing) {
     el('play').click();
 } };
 el('reset').onclick = () => { pause(); if (game.events.length && !confirm('Start a fresh village? Save first if you want to keep this story.'))
-    return; game = create(); replayAt = null; lastHostedTick = -Infinity; render(); };
+    return; game = create(); replayAt = null; schedule = hostedSchedule(); render(); };
 el('save').onclick = () => { pause(); const blob = new Blob([save(game)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `little-world-day-${Math.floor(game.world.tick / 96) + 1}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('World saved. Keep the JSON file to revisit this story.'); };
 el('load').onclick = () => { pause(); el('file').click(); };
 el('file').onchange = async () => { const input = el('file'), file = input.files?.[0]; if (!file)
     return; if (aiBusy) {
-    message('Wait for Dev’s decision before loading a world.');
+    message('Wait for the current decision before loading a world.');
     input.value = '';
     return;
 } try {
@@ -896,7 +951,7 @@ el('file').onchange = async () => { const input = el('file'), file = input.files
     const next = load(await file.text());
     game = next;
     replayAt = null;
-    lastHostedTick = -Infinity;
+    schedule = hostedSchedule();
     render();
     message('Your village is back, just as you left it.');
 }
@@ -929,6 +984,76 @@ el('compare').onclick = () => {
         }
     }, 30);
 };
-el('ai-enabled').onchange = () => { lastHostedTick = -Infinity; message(el('ai-enabled').checked ? 'Dev will use hosted AI for occasional decisions. API charges may apply.' : 'All six residents are back on offline rules.'); };
+el('ai-enabled').onchange = () => { schedule = hostedSchedule(); message(el('ai-enabled').checked ? 'All six residents can take turns using hosted AI. They share one request budget.' : 'All six residents are back on offline rules.'); };
 void refreshAI();
+async function requestDecision(v, signal) {
+    const signals = [AbortSignal.timeout(20000), ...(signal ? [signal] : [])], combined = AbortSignal.any(signals);
+    const delay = Math.max(0, 1050 - (Date.now() - lastRequestAt));
+    if (delay)
+        await new Promise((resolve, reject) => {
+            combined.throwIfAborted();
+            const abort = () => { clearTimeout(timer); reject(combined.reason); };
+            const timer = setTimeout(() => { combined.removeEventListener('abort', abort); resolve(); }, delay);
+            combined.addEventListener('abort', abort, { once: true });
+        });
+    combined.throwIfAborted();
+    lastRequestAt = Date.now();
+    const response = await fetch('/api/decide', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Little-World-Token': aiNonce }, body: JSON.stringify(hostedRequest(v)), signal: combined });
+    if (!response.ok)
+        return { ok: false, reason: 'provider-error' };
+    return response.json();
+}
+function downloadJson(value, name) {
+    const url = URL.createObjectURL(new Blob([typeof value === 'string' ? value : JSON.stringify(value)], { type: 'application/json' })), a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+el('crisis-cancel').onclick = () => experimentAbort?.abort();
+el('crisis-compare').onclick = async () => {
+    if (aiBusy || !aiReady)
+        return;
+    pause();
+    aiBusy = true;
+    experimentAbort = new AbortController();
+    applyLocks();
+    el('crisis-cancel').hidden = false;
+    el('crisis-result').textContent = 'Running two separate days… Hosted requests may take a few minutes.';
+    try {
+        await refreshAI();
+        const limit = Number(el('crisis-limit').value);
+        if (!Number.isSafeInteger(limit) || limit < 1 || limit > 20)
+            throw Error('Choose 1–20 requests.');
+        if (aiAttempts >= aiMax)
+            throw Error('The shared server request budget is exhausted.');
+        let used = 0;
+        crisisResult = await compareCrisis(game.initial, async (v) => {
+            el('crisis-result').textContent = `Hosted opportunity ${++used}/${Math.min(limit, aiMax - aiAttempts)}: ${v.self.name}. The live village is unchanged.`;
+            return requestDecision(v, experimentAbort.signal);
+        }, Math.min(limit, aiMax - aiAttempts), experimentAbort.signal);
+        const a = crisisResult.offline.metrics, b = crisisResult.hosted.metrics;
+        const rows = [['Minutes until refrigerator repaired', a.repairMinutes ?? 'Not within 24 hours', b.repairMinutes ?? 'Not within 24 hours'], ['Meals spoiled', a.spoiled, b.spoiled], ['Combined hours hungry (hunger ≥70)', a.hungryHours, b.hungryHours], ['Meals shared', a.mealsShared, b.mealsShared], ['Conversations', a.conversations, b.conversations], ['Town coins left', a.budget, b.budget], ['Hosted opportunities / accepted choices', '0 / 0', `${b.attempts} / ${b.accepted}`]];
+        el('crisis-result').innerHTML = `<p class="knowledge-note">Same original snapshot and random state, same storm, 24 hours each. The hosted run rotates among six residents, with rules between model turns and on failures. One trial cannot establish which policy is better. Your live village is unchanged.</p><div class="table-scroll"><table><thead><tr><th>What happened</th><th>Offline rules</th><th>Hosted + rules</th></tr></thead><tbody>${rows.map(([label, a, b]) => `<tr><th scope="row">${label}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table></div>`;
+        el('crisis-downloads').hidden = false;
+    }
+    catch (error) {
+        crisisResult = undefined;
+        el('crisis-downloads').hidden = true;
+        el('crisis-result').textContent = experimentAbort.signal.aborted ? 'Comparison cancelled. Completed API requests still count toward your shared budget. Your live village is unchanged.' : `Comparison stopped: ${error.message}`;
+    }
+    finally {
+        experimentAbort = undefined;
+        aiBusy = false;
+        el('crisis-cancel').hidden = true;
+        render();
+        void refreshAI();
+    }
+};
+el('download-offline').onclick = () => { if (crisisResult)
+    downloadJson(save(crisisResult.offline.game), 'little-world-crisis-offline.json'); };
+el('download-hosted').onclick = () => { if (crisisResult)
+    downloadJson(save(crisisResult.hosted.game), 'little-world-crisis-hosted.json'); };
+el('download-comparison').onclick = () => { if (crisisResult)
+    downloadJson({ ...crisisResult, offline: { ...crisisResult.offline, game: JSON.parse(save(crisisResult.offline.game)) }, hosted: { ...crisisResult.hosted, game: JSON.parse(save(crisisResult.hosted.game)) } }, 'little-world-crisis-comparison.json'); };
 </script></body></html>

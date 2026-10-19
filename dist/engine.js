@@ -74,6 +74,19 @@ export function legal(w, r) {
     }
     return actions;
 }
+export function actionLabel(a) {
+    const names = { ada: 'Ada', ben: 'Ben', cleo: 'Cleo', dev: 'Dev', emi: 'Emi', finn: 'Finn' };
+    const work = { 'budget-review': 'review the town budget', 'fund-supplies': 'fund workshop supplies', 'fund-fridge': 'fund refrigerator parts', 'repair-fridge': 'repair the refrigerator', triage: 'treat residents at the market', collect: 'collect garden meals', deliver: 'deliver meals to the market' };
+    if (a.kind === 'move')
+        return `walk to ${places[a.target]?.name ?? 'a destination'}`;
+    if (a.kind === 'work')
+        return work[a.target ?? ''] ?? 'work at my job';
+    if (a.kind === 'talk')
+        return `share a known fact with ${names[a.target ?? ''] ?? 'a neighbor'}`;
+    if (a.kind === 'give')
+        return `give a meal to ${names[a.target ?? ''] ?? 'a neighbor'}`;
+    return { eat: 'eat a meal', buy: 'buy a meal', rest: 'rest', wait: 'wait and observe' }[a.kind];
+}
 export function act(g, a, reason) {
     if (!a || !g.world.residents.some(r => r.id === a.actor))
         return false;
@@ -86,7 +99,7 @@ export function act(g, a, reason) {
     r.status = a.kind === 'move' ? `Walking to ${places[a.target].name}` : `${a.kind[0].toUpperCase() + a.kind.slice(1)}ing`;
     if (reason)
         r.lastDecision = reason;
-    emit(g, before, r.id, 'decision', `${r.name} chose to ${a.kind}${a.target ? ` → ${places[a.target]?.name ?? a.target}` : ''}.${reason ? ` ${reason}` : ''}`, [], undefined);
+    emit(g, before, r.id, 'decision', `${r.name} chose to ${actionLabel(a)}.${reason ? ` ${reason}` : ''}`, [], undefined);
     return true;
 }
 export function view(w, r) {
@@ -482,19 +495,19 @@ export function step(g) {
     while (!next.done)
         next = iterator.next(decide(next.value));
 }
-export async function stepHosted(g, propose) {
+export async function stepHosted(g, propose, residents = g.world.residents.map(r => r.id)) {
     const iterator = advanceDecisions(g);
     let next = iterator.next();
     while (!next.done) {
         const v = next.value;
         let decision = decide(v), record;
-        if (v.self.id === 'dev') {
+        if (residents.includes(v.self.id)) {
             try {
                 const raw = await propose(structuredClone(v));
                 const reply = raw;
                 if (reply?.ok === true && Number.isInteger(reply.actionIndex) && reply.actionIndex >= 0 && reply.actionIndex < v.legalActions.length && typeof reply.reason === 'string' && reply.reason.length > 0 && reply.reason.length <= 240 && typeof reply.dialogue === 'string' && reply.dialogue.length <= 160 && typeof reply.model === 'string' && /^[a-zA-Z0-9._-]{1,80}$/.test(reply.model)) {
                     decision = { action: v.legalActions[reply.actionIndex], reason: `Hosted ${reply.model}: ${reply.reason}` };
-                    record = { text: `Dev used ${reply.model} to choose legal action ${reply.actionIndex}. ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
+                    record = { text: `${v.self.name} used ${reply.model} to ${actionLabel(decision.action)}. ${reply.reason} ${reply.dialogue ? `In-character flavor (not new evidence): “${reply.dialogue}”` : ''}` };
                 }
                 else if (reply?.ok === false && reply.reason === 'cadence') {
                     // Between model turns, the offline policy keeps the village moving.
@@ -502,16 +515,16 @@ export async function stepHosted(g, propose) {
                 else {
                     const safe = ['disabled', 'missing-key', 'budget', 'timeout', 'provider-error', 'malformed', 'busy', 'not-ready', 'cancelled'].includes(reply?.reason ?? '') ? reply.reason : 'malformed';
                     decision.reason = `Offline fallback (${safe}). ${decision.reason}`;
-                    record = { text: `Dev used the offline policy: ${safe}.` };
+                    record = { text: `${v.self.name} used the offline policy: ${safe}.` };
                 }
             }
             catch {
                 decision.reason = `Offline fallback (provider-error). ${decision.reason}`;
-                record = { text: 'Dev used the offline policy: provider-error.' };
+                record = { text: `${v.self.name} used the offline policy: provider-error.` };
             }
         }
         if (record)
-            emit(g, structuredClone(g.world), 'dev', 'ai', record.text, []);
+            emit(g, structuredClone(g.world), v.self.id, 'ai', record.text, []);
         next = iterator.next(decision);
     }
 }
@@ -692,4 +705,50 @@ export function compareMornings(initial, scarce = false) {
             hungryHours: g.events.filter(e => e.type === 'clock').reduce((n, e) => n + e.after.residents.filter(r => r.hunger >= 70).length / 4, 0) };
     }
     return { normal: run(false), delayed: run(true) };
+}
+// One resident gets an opportunity every simulated hour, rotating fairly among ready residents.
+export function hostedSchedule() {
+    let cursor = 0, lastTick = -Infinity;
+    return (g) => {
+        const tick = g.world.tick + 1;
+        if (tick - lastTick < 4)
+            return [];
+        const people = g.world.residents;
+        const r = people[cursor % people.length];
+        if (!r.pending || r.busyUntil <= tick) {
+            cursor = (cursor + 1) % people.length;
+            lastTick = tick;
+            return [r.id];
+        }
+        return [];
+    };
+}
+export async function compareCrisis(initial, propose, requestLimit = 12, signal) {
+    if (!Number.isSafeInteger(requestLimit) || requestLimit < 0 || requestLimit > 100)
+        throw Error('Choose a request limit from 0 to 100.');
+    const make = () => { const world = structuredClone(initial); return { schemaVersion: 1, initial: structuredClone(world), world, events: [] }; };
+    const offline = make(), hosted = make();
+    intervene(offline, 'storm');
+    intervene(hosted, 'storm');
+    const schedule = hostedSchedule();
+    let attempts = 0, accepted = 0, offlineHunger = 0, hostedHunger = 0;
+    for (let i = 0; i < 96; i++) {
+        signal?.throwIfAborted();
+        step(offline);
+        const ids = attempts < requestLimit ? schedule(hosted) : [];
+        await stepHosted(hosted, async (v) => {
+            signal?.throwIfAborted();
+            attempts++;
+            const reply = await propose(v);
+            signal?.throwIfAborted();
+            // Count only choices that pass the engine's full validation, below via its journal.
+            return reply;
+        }, ids);
+        signal?.throwIfAborted();
+        offlineHunger += offline.world.residents.filter(r => r.hunger >= 70).length / 4;
+        hostedHunger += hosted.world.residents.filter(r => r.hunger >= 70).length / 4;
+    }
+    accepted = hosted.events.filter(e => e.type === 'ai' && !e.text.startsWith(`${hosted.world.residents.find(r => r.id === e.actor).name} used the offline policy:`)).length;
+    const summarize = (g, hungryHours, attempts, accepted) => ({ game: g, metrics: { repairMinutes: g.world.fridge?.resolvedTick !== undefined ? (g.world.fridge.resolvedTick - g.world.fridge.startedTick) * 15 : null, spoiled: g.world.fridge?.spoiled ?? 0, hungryHours, mealsShared: g.events.filter(e => e.type === 'give' && e.text.includes(' gave ')).length, conversations: g.events.filter(e => e.type === 'talk' && e.text.includes(' told ')).length, budget: g.world.treasury, attempts, accepted } });
+    return { version: 1, kind: 'little-world-crisis-comparison', offline: summarize(offline, offlineHunger, 0, 0), hosted: summarize(hosted, hostedHunger, attempts, accepted), requestLimit };
 }

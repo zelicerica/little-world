@@ -18,7 +18,7 @@ async function running(t,options={}){
 const result=(context)=>({choice:{actionIndex:context.actions[0].index,reason:'Wait and observe my neighbors.',dialogue:'Good morning, little world.'},usage:{inputTokens:100,outputTokens:30}});
 
 test('hosted context contains only Dev, his memories, local state, and visible neighbors',()=>{
- const v=devView();v.world={treasury:123456,secret:'hidden'};v.nearby.push({id:'ada',name:'Ada',location:'grocer',hunger:20,food:2,health:100,beliefs:[{text:'private neighbor secret'}]});
+ const v=devView();v.world={treasury:123456,secret:'hidden'};v.nearby.push({id:'ada',name:'Ada',location:v.self.location,hunger:20,food:2,health:100,beliefs:[{text:'private neighbor secret'}]});
  const c=prepareHostedContext(v);assert.equal(c.self.id,'dev');assert.equal(c.local.budget,undefined);assert.equal('world' in c,false);assert.equal('beliefs' in c.nearby[0],false);assert.ok(!JSON.stringify(c).includes('hidden'));assert.ok(!JSON.stringify(c).includes('private neighbor secret'));
  const wrong=devView();wrong.self.id='ada';assert.throws(()=>prepareHostedContext(wrong));
 });
@@ -28,7 +28,7 @@ test('context size and legal choice data are bounded and injected instructions r
 });
 test('only Dev invokes the proposer; accepted model decisions are recorded and replay needs no model',async()=>{
  const g=create();let calls=0;
- await stepHosted(g,async v=>{calls++;assert.equal(v.self.id,'dev');return {ok:true,actionIndex:v.legalActions.findIndex(a=>a.kind==='move'&&a.target==='garden'),reason:'Meet Emi to discuss deliveries.',dialogue:'I’ll check the garden.',model:'gpt-5.4-mini'};});
+ await stepHosted(g,async v=>{calls++;assert.equal(v.self.id,'dev');return {ok:true,actionIndex:v.legalActions.findIndex(a=>a.kind==='move'&&a.target==='garden'),reason:'Meet Emi to discuss deliveries.',dialogue:'I’ll check the garden.',model:'gpt-5.4-mini'};},['dev']);
  assert.equal(calls,1);assert.equal(g.world.residents.find(r=>r.id==='dev').pending.target,'garden');assert.ok(g.events.some(e=>e.type==='ai'&&e.text.includes('gpt-5.4-mini')));assert.deepEqual(replay(g),g.world);assert.deepEqual(load(save(g)),g);
  const other=g.world.residents.filter(r=>r.id!=='dev');assert.ok(other.every(r=>!r.lastDecision.includes('Hosted')));
 });
@@ -46,7 +46,7 @@ test('HTTP adapter returns a valid choice and enforces shared request budgets',a
  assert.equal((await app.post().then(r=>r.json())).ok,true);now=1100;assert.equal((await app.post().then(r=>r.json())).ok,true);now=2200;
  assert.equal((await app.post().then(r=>r.json())).reason,'budget');assert.equal(calls,2);assert.equal(app.status().attempts,2);assert.equal(app.status().inputTokens,200);assert.equal(app.status().outputTokens,60);assert.ok(!JSON.stringify(app.status()).includes('fake-test-secret'));
 });
-test('HTTP adapter rejects cross-origin, missing-token, malformed, non-Dev, and secret-file requests',async t=>{
+test('HTTP adapter rejects cross-origin, missing-token, malformed, mismatched actor, and secret-file requests',async t=>{
  const app=await running(t,{provider:async c=>result(c)});
  assert.equal((await app.post(undefined,{'Origin':'https://evil.example'})).status,403);
  assert.equal((await app.post(undefined,{'X-Little-World-Token':''})).status,403);
@@ -87,4 +87,13 @@ test('real AI SDK adapter constructs a stateless structured Responses request th
  }});
  const output=await provider(prepareHostedContext(devView()),new AbortController().signal);
  assert.equal(output.choice.actionIndex,0);assert.equal(request.store,false);assert.equal(request.max_output_tokens,256);assert.equal(request.reasoning.effort,'none');assert.equal(request.text.format.type,'json_schema');assert.equal(request.text.format.strict,true);assert.equal(request.previous_response_id,undefined);assert.equal(request.tools,undefined);
+});
+
+test('all six HTTP requests use separate private contexts and one shared server budget',async t=>{
+ let now=0;const seen=[];
+ const app=await running(t,{config:{...config(),maxRequests:6},clock:()=>now,provider:async c=>{seen.push(c.self.id);return result(c);}});
+ const g=create();
+ for(const r of g.world.residents){const reply=await app.post(hostedRequest(view(g.world,r))).then(r=>r.json());assert.equal(reply.ok,true);now+=1100;}
+ assert.deepEqual(seen,['ada','ben','cleo','dev','emi','finn']);assert.equal(app.status().attempts,6);
+ assert.equal((await app.post().then(r=>r.json())).reason,'budget');assert.equal(seen.length,6);
 });

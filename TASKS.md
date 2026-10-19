@@ -89,3 +89,18 @@ Next user action: open the updated HTML, trigger Storm & cold-store outage, pres
 - [ ] Browser/visual check of hosted mode and Windows launcher execution.
 
 No live or paid model call was made. Request limits are not a dollar budget and reset when the server restarts. Hosted mode requires the local Node server and full project; the standalone HTML uses offline rules. Next action: walk the user through API account/key configuration locally, one step at a time.
+
+
+## 8. Six hosted residents and paired crisis experiment — version 1.4
+
+- [x] Canonical role/personality prompts for all six residents; own bounded memories and location-gated resources only.
+- [x] Fair rotating opportunities, one per simulated hour at most, one shared unchanged server cap.
+- [x] Readable action labels in model choices and journals; engine remains authoritative.
+- [x] Explicit paid comparison button, bounded request limit, cancellation, same initial snapshot/storm/horizon, and outcome metrics.
+- [x] Separate replayable trial saves and paired report; live world remains unchanged.
+- [x] Seven additional tests; all 52 tests pass, including six-resident loopback shared-budget enforcement and mocked SDK transport.
+- [x] Type checks and standalone script syntax check.
+- [ ] User visual/interaction verification of version 1.4.
+- [ ] User-observed hosted crisis comparison.
+
+The user confirmed version 1.3 live hosted requests locally. No paid model call was made here. Version 1.4 browser visual QA remains unverified. Next action: update the full project while preserving the user's private environment file, restart, and inspect six-resident hosted journal entries before choosing a bounded comparison.
