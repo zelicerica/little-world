@@ -1,0 +1,1 @@
+{"name":"little-world","version":"1.0.0","private":true,"type":"module","scripts":{"build":"tsc && node scripts/build.mjs","check":"tsc --noEmit","test":"npm run build && node --test tests/*.test.mjs","dev":"python3 -m http.server 4173 --directory dist"},"devDependencies":{"typescript":"5.9.3"}}

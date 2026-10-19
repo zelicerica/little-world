@@ -1,0 +1,390 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Little World — a village with a life of its own</title><style>:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;color:#34443c;background:#f7f7ef;font-synthesis:none;--green:#365d49;--line:#dfe3d5}*{box-sizing:border-box}body{margin:0}button,select{font:inherit;color:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:8px;background:#fffef8;padding:10px 15px;transition:background .15s,transform .15s}button:hover{background:#e8eddf}button:active{transform:translateY(1px)}button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #ba7539;outline-offset:3px}button:disabled{opacity:.5;cursor:default}select{padding:9px;border:1px solid var(--line);border-radius:7px;background:#fffef8}header{height:96px;border-bottom:1px solid var(--line);padding:0 5%;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{color:var(--green);text-decoration:none;display:flex;align-items:center;gap:12px;font-family:Georgia,serif;font-size:29px;font-weight:bold;letter-spacing:-1px}.brandmark{font-size:48px;font-weight:normal}.brand small{display:block;font:9px system-ui;letter-spacing:2px;margin-top:5px}.live{font-size:10px;letter-spacing:1.5px;display:flex;align-items:center;gap:10px}.live #clock{font-size:12px;letter-spacing:0;border-left:1px solid #cfd6c7;padding-left:14px}.live i,.dot{display:inline-block;width:6px;height:6px;background:#6b8e64;border-radius:50%}.header-actions{display:flex;gap:8px;font-size:12px}main{max-width:1500px;margin:auto;padding:38px 5% 18px}.intro{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;gap:20px}.eyebrow{font-size:10px;letter-spacing:2px;font-weight:650;color:#78836d;margin:0 0 12px}h1,h2,h3{font-family:Georgia,serif;font-weight:normal}h1{font-size:40px;letter-spacing:-1.2px;margin:0 0 10px}h2{font-size:25px;margin:0}h3{font-size:30px;margin:0 0 3px}.intro p:not(.eyebrow){font-size:13px;color:#7d8579;margin:0}.weather{display:flex;align-items:center;gap:15px;font-size:33px;color:#ad9757}.weather span{font-size:13px;color:#56664f}.weather small{display:block;font-size:10px;margin-top:6px;color:#88907f}.dashboard{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:22px}.village-column{min-width:0}.map-top{display:flex;align-items:center;justify-content:space-between;font-size:9px;letter-spacing:1.3px;padding:15px 18px;background:#fffff9;border:1px solid var(--line);border-bottom:0;border-radius:13px 13px 0 0}.map-top .dot{margin-right:6px}.muted{color:#99a18e;letter-spacing:0;margin-left:8px}.map{height:480px;position:relative;overflow:hidden;background:#cbd9ac;border:1px solid #b9c59f}.landscape{width:100%;height:100%;position:absolute}.building{position:absolute;transform:translate(-50%,-50%);width:94px;text-align:center;pointer-events:none}.building .structure{position:relative;display:block;width:67px;height:46px;margin:12px auto 3px;background:#eee1b9;border:2px solid #b2a77f;box-shadow:4px 5px 0 #5a6a3920;border-radius:2px}.building .structure:before{content:'';position:absolute;left:-7px;top:-19px;width:77px;height:24px;background:#9a6952;clip-path:polygon(15% 0,85% 0,100% 100%,0 100%);border-radius:3px}.building .structure:after{content:'▪ ▯ ▪';position:absolute;inset:5px 0 0;color:#8a967e;font-size:24px}.building small{font-size:9px;display:inline-block;background:#f8f2d9e6;padding:3px 5px;border-radius:3px;white-space:nowrap;color:#566247}.building.home{width:42px;opacity:.75}.building.home .structure{width:28px;height:23px;margin:0 auto}.building.home .structure:before{width:37px;height:14px;left:-6px;top:-12px}.building.home .structure:after{content:'▪';font-size:14px;inset:0}.building.home small{display:none}.building.garden .structure{background:repeating-linear-gradient(0deg,#7b9454 0 6px,#b3a171 6px 12px);width:76px;height:43px;transform:skewY(-8deg);border:3px solid #c5b184}.building.garden .structure:before,.building.garden .structure:after{display:none}.building.clinic .structure:before{background:#aa7e76}.building.clinic .structure:after{content:'✚';color:#ae7b70}.building.hall .structure:before{background:#829288}.building.square .structure{border-radius:50%;width:47px;height:28px;background:#9ebdb1;border:5px solid #d8d4bb}.building.square .structure:before{width:9px;height:25px;background:#e2ddc6;left:14px;top:-16px;clip-path:none}.building.square .structure:after{display:none}.resident{position:absolute;transform:translate(-50%,-50%);padding:0;width:30px;height:30px;border:2px solid #fff7de;border-radius:50%;background:var(--resident-color);color:white;font:bold 12px Georgia;box-shadow:0 3px 4px #3d493635;z-index:3;transition:left .8s ease,top .8s ease;}.resident.selected{outline:2px solid #496341;outline-offset:3px}.resident:after{content:attr(data-name);position:absolute;top:32px;left:50%;transform:translateX(-50%);font:9px system-ui;background:#fffcefde;padding:1px 5px;border-radius:3px;color:#4d5a47}.map-caption{position:absolute;bottom:15px;left:20px;font:italic 12px Georgia;color:#607451}.compass{position:absolute;right:18px;bottom:16px;text-align:center;font:11px Georgia;color:#64794e}.controls{display:flex;justify-content:space-between;align-items:center;background:#fffef8;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;padding:12px 16px;font-size:12px}.play-controls{display:flex;gap:8px;align-items:center}.play-controls label{display:flex;align-items:center;gap:8px;color:#919783;font-size:11px;margin-left:8px}.play-controls select{padding:7px}.primary{background:var(--green);color:#fff;border-color:var(--green);min-width:95px}.primary:hover{background:#244c37}.text-button{border:0;background:none;color:#838b78;font-size:11px}.stats{display:grid;grid-template-columns:repeat(4,1fr);padding:22px 0;margin:0;border-bottom:1px solid var(--line)}.stat{padding-left:18px;border-left:1px solid var(--line)}.stat:first-child{padding-left:0;border:0}.stat strong{display:block;font-size:23px;font-family:Georgia,serif;font-weight:normal}.stat small{display:block;font-size:9px;color:#7c8772;margin-bottom:7px;letter-spacing:1px}.stat em{font-style:normal;font-size:10px;color:#949b87;margin-left:5px}.interventions{padding-top:24px}.intervention-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:17px}.intervention-grid button{text-align:left;padding:14px;background:#f1f2e7}.intervention-grid button:hover{background:#e5ead9}.intervention-grid span{font-size:23px;display:block;color:#7c8a68;margin-bottom:7px}.intervention-grid strong{display:block;font-size:11px;font-weight:600}.intervention-grid small{font-size:9px;color:#87917c;display:block;margin-top:5px}.inspector{background:#fffef8;border:1px solid var(--line);border-radius:13px;overflow:hidden;align-self:start}.panel-label{font-size:9px;letter-spacing:1.5px;padding:18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between}.panel-label span{color:#a2a88f}.cast{display:flex;justify-content:space-between;padding:19px 17px;border-bottom:1px solid var(--line)}.cast button{padding:0;border:0;background:none;text-align:center;font-size:9px;color:#8e9583}.avatar{display:grid;place-items:center;border:3px solid #fffef8;width:33px;height:33px;border-radius:50%;background:var(--resident-color);color:#fff;font:15px Georgia;margin-bottom:5px}.cast .active .avatar{outline:2px solid #66835c}.cast .active{color:#3c573f}.profile{padding:22px}.profile-top{display:flex;justify-content:space-between;align-items:center}.profile-top .large-avatar{width:49px;height:49px;font-size:24px}.role{font-size:11px;color:#8b927e}.trait{display:inline-block;padding:4px 8px;border-radius:4px;background:#edf0e2;font-size:9px;margin-top:12px;color:#78865f}.location{font-size:11px;color:#7d8a6e;margin:16px 0 5px}.status{font-size:11px;color:#8b927e;min-height:18px}.needs{margin:20px 0}.need{display:grid;grid-template-columns:46px 1fr 28px;gap:8px;align-items:center;font-size:9px;color:#929a85;margin:10px 0}.bar{height:5px;border-radius:5px;background:#ebeee1;overflow:hidden}.bar span{display:block;height:100%;border-radius:5px;background:#9aa877}.pockets{display:flex;gap:17px;font-size:11px;color:#758264;padding:13px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.section-label{font-size:9px;letter-spacing:1.3px;color:#899478;margin:20px 0 10px}.goal{font:italic 16px/1.5 Georgia;color:#657957;margin:0}.knowledge-note{font-size:10px;color:#959c87;line-height:1.5}.memories{max-height:210px;overflow:auto;margin:0;padding:0;list-style:none}.memories li{font-size:11px;line-height:1.5;padding:10px 0;border-top:1px solid #edf0e4}.memories small{font-size:8px;display:block;color:#8e997e;margin-bottom:3px;letter-spacing:.4px}.relationships{font-size:10px;color:#7c8b70;line-height:1.8}.journal{margin-top:34px;border-top:1px solid var(--line);padding-top:26px}.journal-heading{display:flex;justify-content:space-between;align-items:center;gap:15px}.filters{display:flex;align-items:center;gap:8px;font-size:10px;color:#8b957c}.filters select{font-size:10px}.filters label{white-space:nowrap}.feed{margin-top:17px;max-height:310px;overflow:auto}.entry{display:grid;grid-template-columns:120px 24px 1fr;align-items:start;padding:13px 2px;border-bottom:1px solid #e8ebdf;gap:10px;font-size:12px;line-height:1.5}.entry time{color:#939d85;font-size:10px}.entry .event-icon{color:#8a9a74}.empty{padding:24px;font-size:12px;color:#8a947d;text-align:center}.replay-panel{display:flex;align-items:center;gap:15px;border:1px solid var(--line);border-radius:10px;background:#f0f2e6;padding:17px;margin-top:25px;font-size:11px}.replay-panel strong{font-weight:500}.replay-panel small{display:block;color:#929b84;font-size:9px;margin-top:5px}.replay-panel input{flex:1;min-width:60px;accent-color:#59794c}.replay-panel button{font-size:11px}.footnote{text-align:center;font-size:10px;line-height:1.9;color:#a1a791;margin:24px 0}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}#message{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#365d49;color:#fff;padding:12px 20px;border-radius:8px;font-size:12px;box-shadow:0 4px 20px #22332220;z-index:9;display:none}body.storm .map{filter:saturate(.65)}@media(min-width:1450px){.map{height:560px}}@media(max-width:1000px){header{padding:0 3%}.live{display:none}main{padding:27px 3%}.dashboard{grid-template-columns:minmax(0,1fr) 275px;gap:15px}.map{height:420px}.building{scale:.85}.weather{display:none}.journal-heading{align-items:flex-start}.filters{flex-wrap:wrap;justify-content:flex-end}}@media(max-width:740px){header{height:80px}.brand{font-size:23px}.brandmark{font-size:37px}.header-actions button{padding:8px;font-size:10px}h1{font-size:32px}.intro{margin-bottom:24px}.intro p:not(.eyebrow){line-height:1.7}.dashboard{grid-template-columns:1fr}.map{height:420px}.inspector{margin-top:5px}.profile{display:block}.cast{justify-content:flex-start;gap:17px}.memories{max-height:180px}.journal-heading{display:block}.filters{margin-top:15px;justify-content:flex-start}.replay-panel{flex-wrap:wrap}.replay-panel>div{width:100%}.map-top{font-size:8px;padding:12px}.muted{display:none}.controls{padding:10px}.entry{grid-template-columns:90px 16px 1fr;font-size:11px}.stat strong{font-size:20px}.stat{padding-left:10px}.stat small{font-size:8px}.intervention-grid{gap:6px}.intervention-grid button{padding:10px}.intervention-grid small{line-height:1.5}}@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><a class="brand" href="#"><span class="brandmark">✳</span><span>little world<small>A SMALL PLACE. MANY STORIES.</small></span></a><div class="live"><i></i> OFFLINE VILLAGE <span id="clock"></span></div><div class="header-actions"><button id="save">↓ Save world</button><button id="load">↑ Load</button><input type="file" id="file" accept=".json" hidden></div></header>
+<main><section class="intro"><div><p class="eyebrow">A LIVING LITTLE EXPERIMENT</p><h1>Every day has a story.</h1><p>Six neighbors. A handful of resources. A world that keeps unfolding.</p></div><div class="weather" id="weather">☀ <span>A quiet morning<small>Perfect weather for a fresh start</small></span></div></section>
+<section class="dashboard"><div class="village-column"><div class="map-top"><span><i class="dot"></i> THE VILLAGE <span class="muted">· Player’s all-seeing view</span></span><span id="day-label">SEED 42</span></div><div class="map" id="map" aria-label="Village map"><svg class="landscape" viewBox="0 0 1000 650" preserveAspectRatio="none" aria-hidden="true"><defs><pattern id="grass" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M10 14l2-4 2 4M31 32l2-4 2 4" stroke="#88a56d" stroke-width="1" fill="none" opacity=".35"/></pattern></defs><rect width="1000" height="650" fill="#cbd9ac"/><rect width="1000" height="650" fill="url(#grass)"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#94b9b5" stroke-width="65" fill="none"/><path d="M-40 540 Q130 460 90 330 T140 -40" stroke="#b1cebf" stroke-width="42" fill="none"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#b9bd90" stroke-width="45" fill="none" stroke-linecap="round"/><path d="M245 175L500 320 760 175M500 320L780 435M500 320L240 440M500 95V540M240 440L120 545M780 435L880 545M240 175L120 78M760 175L880 78" stroke="#eee2bd" stroke-width="31" fill="none" stroke-linecap="round"/><ellipse cx="500" cy="320" rx="75" ry="57" fill="#e8d8b2"/><g fill="#789963" stroke="#638452" stroke-width="3"><circle cx="335" cy="375" r="27"/><circle cx="355" cy="357" r="23"/><circle cx="655" cy="107" r="28"/><circle cx="685" cy="122" r="23"/><circle cx="920" cy="325" r="33"/><circle cx="893" cy="353" r="24"/><circle cx="370" cy="565" r="32"/><circle cx="685" cy="560" r="28"/><circle cx="290" cy="68" r="20"/><circle cx="164" cy="392" r="23"/></g><g fill="#efe3aa"><circle cx="360" cy="250" r="3"/><circle cx="368" cy="256" r="3"/><circle cx="690" cy="375" r="3"/><circle cx="700" cy="380" r="3"/><circle cx="331" cy="520" r="3"/></g><path d="M55 305L133 305" stroke="#a58663" stroke-width="32"/><path d="M55 305L133 305" stroke="#c8ae81" stroke-width="24"/></svg><div id="buildings"></div><div id="residents"></div><div class="map-caption">Click a neighbor to see their world.</div><div class="compass">N<br>↑</div></div>
+<div class="controls"><div class="play-controls"><button id="play" class="primary">▶ Play</button><button id="step" title="Advance fifteen minutes">Step →</button><label>Speed <select id="speed"><option value="1000">1×</option><option value="400">2×</option><option value="120">5×</option></select></label></div><button id="reset" class="text-button">↺ New day</button></div><div class="stats" id="stats"></div>
+<section class="interventions"><div><p class="eyebrow">A LITTLE CHANGE GOES A LONG WAY</p><h2>Give the story a nudge.</h2></div><div class="intervention-grid"><button data-intervention="storm"><span>☁</span><strong>Bring a storm</strong><small>Pause the garden harvest</small></button><button data-intervention="delay"><span>◷</span><strong>Delay a shipment</strong><small>Put the food supply to the test</small></button><button data-intervention="donation"><span>♡</span><strong>Leave a donation</strong><small>Add 100 coins, anonymously</small></button></div></section></div>
+<aside class="inspector"><div class="panel-label">MEET YOUR NEIGHBORS <span>06</span></div><div class="cast" id="cast"></div><div id="inspector-content"></div></aside></section>
+<section class="journal"><div class="journal-heading"><div><p class="eyebrow">THE VILLAGE JOURNAL</p><h2>Little moments, unfolding.</h2></div><div class="filters"><label class="sr-only" for="resident-filter">Filter resident</label><select id="resident-filter"><option value="all">All neighbors</option></select><label class="sr-only" for="type-filter">Filter event type</label><select id="type-filter"><option value="all">All moments</option><option value="talk">Conversations</option><option value="work">Work</option><option value="buy">Food purchases</option><option value="intervention">Your interventions</option><option value="shipment">Shipments</option></select><label><input type="checkbox" id="decisions"> Decisions</label></div></div><div id="feed" class="feed"></div></section>
+<section class="replay-panel"><div><strong>Revisit the story</strong><small>Replay recorded events without asking residents to decide again.</small></div><button id="replay">↶ Replay</button><input aria-label="Replay position" type="range" id="scrub" min="0" value="0" max="0" disabled><span id="replay-label">Live</span><button id="return" hidden>Return to live</button></section><p class="footnote">Built for curiosity. Decisions follow offline rules. Memories belong to each neighbor.<br>Money and resources follow the village’s rules; outside shipments and gifts are recorded.</p><div id="message" role="status" aria-live="polite"></div></main><script type="module">const scenario = { price: 3, wage: 2, shipment: 24, harvest: 3, startingTreasury: 240, startingFood: 18, startingSupplies: 20, opening: 32, closing: 76 };
+const places = { grocer: { name: 'Ada’s Market', x: 24, y: 28, icon: '🥕' }, clinic: { name: 'Cleo’s Clinic', x: 76, y: 27, icon: '✚' }, workshop: { name: 'The Workshop', x: 78, y: 67, icon: '⚒' }, garden: { name: 'Community Garden', x: 23, y: 68, icon: '🌱' }, hall: { name: 'Town Hall', x: 50, y: 18, icon: '⚑' }, square: { name: 'Village Square', x: 50, y: 49, icon: '⛲' }, 'ada-home': { name: 'Ada’s home', x: 12, y: 12, icon: '⌂' }, 'ben-home': { name: 'Ben’s home', x: 88, y: 84, icon: '⌂' }, 'cleo-home': { name: 'Cleo’s home', x: 88, y: 12, icon: '⌂' }, 'dev-home': { name: 'Dev’s home', x: 55, y: 84, icon: '⌂' }, 'emi-home': { name: 'Emi’s home', x: 12, y: 84, icon: '⌂' }, 'finn-home': { name: 'Finn’s home', x: 38, y: 8, icon: '⌂' } };
+function create(seed = 42) {
+    const cast = [['ada', 'Ada', 'Grocer', 'Cautious', 'Keep food available', 'grocer', '#d48348'], ['ben', 'Ben', 'Mechanic', 'Practical', 'Repair workshop equipment', 'workshop', '#607da6'], ['cleo', 'Cleo', 'Clinician', 'Generous', 'Keep residents healthy', 'clinic', '#b8798a'], ['dev', 'Dev', 'Courier', 'Sociable', 'Deliver supplies reliably', 'square', '#a48c43'], ['emi', 'Emi', 'Gardener', 'Independent', 'Grow a food reserve', 'garden', '#729361'], ['finn', 'Finn', 'Clerk', 'Orderly', 'Balance the town budget', 'hall', '#8c78aa']];
+    const world = { tick: 28, rng: seed >>> 0, treasury: scenario.startingTreasury, shopFood: scenario.startingFood, reserve: 6, supplies: scenario.startingSupplies, repaired: 0, stormUntil: 0, shipmentDue: 40, residents: cast.map(([id, name, role, trait, goal, job, color]) => ({ id, name, role, trait, goal, color, home: `${id}-home`, job: job, location: `${id}-home`, money: 24, food: 2, hunger: 20, energy: 90, health: 100, busyUntil: 0, pending: null, status: 'Starting the morning', beliefs: [], relationships: {} })) };
+    return { schemaVersion: 1, initial: structuredClone(world), world, events: [] };
+}
+const total = (w) => ({ money: w.treasury + w.residents.reduce((n, r) => n + r.money, 0), food: w.shopFood + w.reserve + w.residents.reduce((n, r) => n + r.food, 0), supplies: w.supplies });
+function emit(g, before, actor, type, text, recipients, source) {
+    const a = total(before), b = total(g.world), id = `e${g.events.length + 1}`;
+    for (const r of g.world.residents.filter(r => recipients.includes(r.id)))
+        r.beliefs.push({ id: `${id}-${r.id}`, text, tick: g.world.tick, provenance: 'observation', source: actor, eventId: id });
+    g.events.push({ id, tick: g.world.tick, actor, type, text, recipients, effects: { money: b.money - a.money, food: b.food - a.food, supplies: b.supplies - a.supplies, ...(source ? { source } : {}) }, after: { ...g.world, residents: g.world.residents.map(r => ({ ...r, pending: r.pending ? { ...r.pending } : null, beliefs: r.beliefs.slice(), relationships: { ...r.relationships } })) } });
+}
+function legal(w, r) {
+    if (r.pending)
+        return [];
+    const actions = [{ actor: r.id, kind: 'wait', duration: 1 }, { actor: r.id, kind: 'rest', duration: 2 }];
+    for (const p of Object.keys(places))
+        if (p !== r.location)
+            actions.push({ actor: r.id, kind: 'move', target: p, duration: 2 });
+    if (r.food > 0)
+        actions.push({ actor: r.id, kind: 'eat', duration: 1 });
+    if (r.location === 'grocer' && w.tick % 96 >= scenario.opening && w.tick % 96 < scenario.closing && w.shopFood > 0 && r.money >= scenario.price)
+        actions.push({ actor: r.id, kind: 'buy', duration: 1 });
+    if (r.location === r.job && w.treasury >= scenario.wage && w.tick % 96 >= scenario.opening && w.tick % 96 < scenario.closing)
+        actions.push({ actor: r.id, kind: 'work', duration: 2 });
+    for (const other of w.residents.filter(o => o.id !== r.id && o.location === r.location)) {
+        if (r.food > 0)
+            actions.push({ actor: r.id, kind: 'give', target: other.id, duration: 1 });
+        for (const fact of r.beliefs.slice(-8))
+            actions.push({ actor: r.id, kind: 'talk', target: other.id, fact: fact.id, duration: 1 });
+    }
+    return actions;
+}
+function act(g, a) {
+    if (!a || !g.world.residents.some(r => r.id === a.actor))
+        return false;
+    const r = g.world.residents.find(r => r.id === a.actor);
+    if (!legal(g.world, r).some(x => JSON.stringify(x) === JSON.stringify(a)))
+        return false;
+    const before = structuredClone(g.world);
+    r.pending = structuredClone(a);
+    r.busyUntil = g.world.tick + a.duration;
+    r.status = a.kind === 'move' ? `Walking to ${places[a.target].name}` : `${a.kind[0].toUpperCase() + a.kind.slice(1)}ing`;
+    emit(g, before, r.id, 'decision', `${r.name} chose to ${a.kind}${a.target ? ` → ${places[a.target]?.name ?? a.target}` : ''}.`, [], undefined);
+    return true;
+}
+function view(w, r) { return { self: structuredClone(r), nearby: w.residents.filter(o => o.id !== r.id && o.location === r.location).map(o => ({ id: o.id, name: o.name, location: o.location, hunger: o.hunger, food: o.food })), legalActions: legal(w, r), tick: w.tick }; }
+function choose(v) {
+    const r = v.self, opts = v.legalActions, pick = (kind, target) => opts.find(a => a.kind === kind && (!target || a.target === target));
+    if (r.hunger >= 38 && pick('eat'))
+        return pick('eat');
+    if (r.energy < 28)
+        return pick('rest');
+    const hour = v.tick % 96;
+    if (hour < 28 || hour >= 80)
+        return r.location === r.home ? pick('rest') : pick('move', r.home);
+    if (r.food < 2) {
+        if (pick('buy'))
+            return pick('buy');
+        if (r.location !== 'grocer')
+            return pick('move', 'grocer');
+    }
+    const hungry = v.nearby.find(o => o.food === 0 && o.hunger > 40);
+    if (hungry && r.food > 1)
+        return pick('give', hungry.id);
+    if ((v.tick + r.id.length) % 7 === 0 && pick('talk'))
+        return opts.filter(a => a.kind === 'talk').at(-1);
+    if (r.location !== r.job)
+        return pick('move', r.job);
+    return pick('work') ?? pick('rest');
+}
+function complete(g, r) {
+    const w = g.world, a = r.pending, before = structuredClone(w);
+    r.pending = null;
+    r.status = 'Watching the village';
+    let text = '', source;
+    if (a.kind === 'move') {
+        r.location = a.target;
+        text = `${r.name} arrived at ${places[r.location].name}.`;
+    }
+    if (a.kind === 'buy') {
+        if (w.shopFood > 0 && r.money >= scenario.price) {
+            w.shopFood--;
+            r.food++;
+            r.money -= scenario.price;
+            w.treasury += scenario.price;
+            text = `${r.name} bought a meal for ${scenario.price} coins.`;
+        }
+        else
+            text = `${r.name} found no food available and will try again.`;
+    }
+    if (a.kind === 'eat' && r.food > 0) {
+        r.food--;
+        r.hunger = Math.max(0, r.hunger - 45);
+        text = `${r.name} ate a meal.`;
+        source = 'Meal consumed';
+    }
+    if (a.kind === 'rest') {
+        r.energy = Math.min(100, r.energy + 28);
+        r.health = Math.min(100, r.health + 2);
+        text = `${r.name} took a little time to rest.`;
+    }
+    if (a.kind === 'work') {
+        if (w.treasury >= scenario.wage) {
+            w.treasury -= scenario.wage;
+            r.money += scenario.wage;
+            r.energy = Math.max(0, r.energy - 6);
+            text = `${r.name} worked and earned ${scenario.wage} coins.`;
+            if (r.id === 'emi' && w.stormUntil <= w.tick) {
+                w.reserve += scenario.harvest;
+                source = 'Garden harvest';
+                text += ' Harvested 3 meals for the reserve.';
+            }
+            if (r.id === 'ben' && w.supplies > 0 && w.repaired < 100) {
+                w.supplies--;
+                w.repaired = Math.min(100, w.repaired + 5);
+                source = 'Repair supplies consumed';
+                text += ' Repaired workshop equipment.';
+            }
+            if (r.id === 'dev' && w.reserve > 0) {
+                const amount = Math.min(3, w.reserve);
+                w.reserve -= amount;
+                w.shopFood += amount;
+                text += ` Delivered ${amount} reserve meals to the market.`;
+            }
+            if (r.id === 'cleo')
+                for (const o of w.residents.filter(o => o.location === 'clinic'))
+                    o.health = Math.min(100, o.health + 4);
+        }
+        else
+            text = `${r.name} could not work: the wage fund is empty.`;
+    }
+    if (a.kind === 'give' || a.kind === 'talk') {
+        const other = w.residents.find(o => o.id === a.target && o.location === r.location);
+        if (other) {
+            if (a.kind === 'give' && r.food > 0) {
+                r.food--;
+                other.food++;
+                text = `${r.name} gave ${other.name} a meal.`;
+            }
+            if (a.kind === 'talk') {
+                const fact = r.beliefs.find(b => b.id === a.fact);
+                if (fact) {
+                    other.beliefs.push({ id: `b${g.events.length + 1}-${other.id}`, text: fact.text, tick: w.tick, provenance: 'testimony', source: r.id, eventId: fact.eventId });
+                    text = `${r.name} told ${other.name}: “${fact.text}”`;
+                }
+            }
+            if (text) {
+                r.relationships[other.id] = (r.relationships[other.id] ?? 0) + 1;
+                other.relationships[r.id] = (other.relationships[r.id] ?? 0) + 1;
+            }
+        }
+    }
+    if (!text)
+        text = `${r.name} waited a moment.`;
+    const recipients = w.residents.filter(o => o.location === r.location).map(o => o.id);
+    emit(g, before, r.id, a.kind, text, recipients, source);
+}
+function step(g) {
+    let before = structuredClone(g.world);
+    const w = g.world;
+    w.tick++;
+    w.rng = (Math.imul(w.rng, 1664525) + 1013904223) >>> 0;
+    for (const r of w.residents) {
+        r.hunger = Math.min(100, r.hunger + 1);
+        if (r.hunger > 85)
+            r.health = Math.max(30, r.health - 1);
+    }
+    emit(g, before, 'world', 'clock', 'Fifteen minutes pass.', []);
+    if (w.tick >= w.shipmentDue) {
+        before = structuredClone(w);
+        w.shopFood += scenario.shipment;
+        w.shipmentDue += 96;
+        emit(g, before, 'world', 'shipment', 'A shipment brought 24 meals to the market.', w.residents.filter(r => r.location === 'grocer' || r.id === 'dev').map(r => r.id), 'External food shipment');
+    }
+    for (const r of w.residents) {
+        if (r.pending && r.busyUntil <= w.tick)
+            complete(g, r);
+        if (!r.pending)
+            act(g, choose(view(w, r)));
+    }
+}
+function intervene(g, kind) {
+    const before = structuredClone(g.world), w = g.world;
+    let text = '';
+    if (kind === 'storm') {
+        w.stormUntil = Math.max(w.tick, w.stormUntil) + 16;
+        text = 'A storm rolls in. Garden harvests pause for four hours.';
+    }
+    if (kind === 'delay') {
+        w.shipmentDue += 32;
+        text = 'The food shipment is delayed by eight hours.';
+    }
+    if (kind === 'donation') {
+        w.treasury += 100;
+        text = 'An anonymous donor added 100 coins to the town budget.';
+    }
+    emit(g, before, 'player', kind, text, kind === 'storm' ? w.residents.map(r => r.id) : w.residents.filter(r => r.location === (kind === 'delay' ? 'grocer' : 'hall')).map(r => r.id), kind === 'donation' ? 'External anonymous donation' : undefined);
+}
+function replay(g, count = g.events.length) { return structuredClone(count ? g.events[count - 1].after : g.initial); }
+function assertWorld(w) {
+    if (!w || !Number.isSafeInteger(w.tick) || w.tick < 0 || !Number.isSafeInteger(w.rng) || w.rng < 0 || w.rng > 4294967295)
+        throw Error('Invalid clock or random state.');
+    for (const k of ['treasury', 'shopFood', 'reserve', 'supplies', 'repaired', 'stormUntil', 'shipmentDue'])
+        if (!Number.isSafeInteger(w[k]) || w[k] < 0)
+            throw Error(`Invalid ${k}.`);
+    if (!Array.isArray(w.residents) || w.residents.length !== 6 || new Set(w.residents.map(r => r.id)).size !== 6)
+        throw Error('Save must contain six unique residents.');
+    const original = create().world;
+    for (const r of w.residents) {
+        const known = original.residents.find(o => o.id === r.id);
+        if (!known || ['name', 'role', 'trait', 'goal', 'color'].some(k => r[k] !== known[k]) || !Object.hasOwn(places, r.location) || r.home !== known.home || r.job !== known.job)
+            throw Error('Invalid resident or location.');
+        for (const k of ['money', 'food', 'hunger', 'energy', 'health', 'busyUntil'])
+            if (!Number.isSafeInteger(r[k]) || r[k] < 0)
+                throw Error(`Invalid resident ${k}.`);
+        if (r.hunger > 100 || r.energy > 100 || r.health > 100 || typeof r.status !== 'string' || !Array.isArray(r.beliefs) || !r.relationships || typeof r.relationships !== 'object')
+            throw Error('Invalid resident needs or memories.');
+        for (const b of r.beliefs)
+            if (!b || typeof b.id !== 'string' || typeof b.text !== 'string' || typeof b.source !== 'string' || typeof b.eventId !== 'string' || !Number.isSafeInteger(b.tick) || !['observation', 'testimony', 'inference'].includes(b.provenance))
+                throw Error('Invalid belief provenance.');
+        for (const [id, value] of Object.entries(r.relationships))
+            if (!original.residents.some(o => o.id === id) || !Number.isSafeInteger(value) || value < 0)
+                throw Error('Invalid relationship.');
+        if (r.pending) {
+            const a = r.pending;
+            if (a.actor !== r.id || !['move', 'buy', 'work', 'eat', 'rest', 'talk', 'give', 'wait'].includes(a.kind) || ![1, 2].includes(a.duration) || r.busyUntil < w.tick)
+                throw Error('Invalid pending action.');
+            if (a.kind === 'move' && !Object.hasOwn(places, a.target))
+                throw Error('Invalid movement target.');
+        }
+    }
+}
+function save(g) {
+    const pool = [], ids = new Map();
+    function snapshot(w) { return { ...w, residents: w.residents.map(r => ({ ...r, beliefs: r.beliefs.map(b => { let id = ids.get(b.id); if (id === undefined) {
+                id = pool.length;
+                pool.push(b);
+                ids.set(b.id, id);
+            } return id; }) })) }; }
+    const initial = snapshot(g.initial), events = g.events.map(e => ({ ...e, after: snapshot(e.after) })), world = snapshot(g.world);
+    return JSON.stringify({ schemaVersion: 1, encoding: 'belief-pool-v1', initial, events, world, beliefPool: pool });
+}
+function load(text) {
+    if (text.length > 40_000_000)
+        throw Error('Save is too large (maximum 40 MB).');
+    let raw;
+    try {
+        raw = JSON.parse(text);
+    }
+    catch {
+        throw Error('This file is not valid JSON. Choose a Little World save.');
+    }
+    if (raw?.encoding === 'belief-pool-v1') {
+        if (!Array.isArray(raw.beliefPool) || raw.beliefPool.length > 50000 || !Array.isArray(raw.events) || raw.events.length > 12000)
+            throw Error('Invalid memory pool or event limit.');
+        const restore = (w) => { if (!w || !Array.isArray(w.residents))
+            throw Error('Invalid snapshot.'); for (const r of w.residents) {
+            if (!Array.isArray(r.beliefs) || r.beliefs.length > 5000)
+                throw Error('Invalid memory list.');
+            r.beliefs = r.beliefs.map((i) => { if (!Number.isSafeInteger(i) || i < 0 || i >= raw.beliefPool.length)
+                throw Error('Invalid memory reference.'); return raw.beliefPool[i]; });
+        } };
+        restore(raw.initial);
+        restore(raw.world);
+        for (const e of raw.events)
+            restore(e.after);
+        delete raw.encoding;
+        delete raw.beliefPool;
+    }
+    else if (raw?.encoding)
+        throw Error('Unsupported save encoding.');
+    const g = raw;
+    if (!g || g.schemaVersion !== 1 || !Array.isArray(g.events) || g.events.length > 12000)
+        throw Error('Unsupported save version or event limit.');
+    assertWorld(g.initial);
+    assertWorld(g.world);
+    for (let i = 0; i < g.events.length; i++) {
+        const e = g.events[i];
+        if (!e || e.id !== `e${i + 1}` || typeof e.text !== 'string' || typeof e.type !== 'string' || typeof e.actor !== 'string' || !Array.isArray(e.recipients) || !e.effects)
+            throw Error('Invalid event log.');
+        assertWorld(e.after);
+        if (e.tick !== e.after.tick || (i && e.tick < g.events[i - 1].tick))
+            throw Error('Invalid event order.');
+        const before = i ? g.events[i - 1].after : g.initial, a = total(before), b = total(e.after);
+        for (const key of ['money', 'food', 'supplies'])
+            if (!Number.isSafeInteger(e.effects[key]) || e.effects[key] !== b[key] - a[key])
+                throw Error('Event accounting does not balance.');
+        if ((e.effects.money || e.effects.food || e.effects.supplies) && typeof e.effects.source !== 'string')
+            throw Error('Resource changes need a recorded source.');
+        if (!e.recipients.every(id => g.initial.residents.some(r => r.id === id)))
+            throw Error('Invalid observation recipients.');
+    }
+    if (JSON.stringify(replay(g)) !== JSON.stringify(g.world))
+        throw Error('Save state does not match its event log.');
+    return g;
+}
+function time(tick) { return `Day ${Math.floor(tick / 96) + 1} · ${String(Math.floor(tick % 96 / 4)).padStart(2, '0')}:${String(tick % 4 * 15).padStart(2, '0')}`; }
+
+const el = (id) => document.getElementById(id);
+let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
+const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function message(s) { el('message').textContent = s; el('message').style.display = 'block'; setTimeout(() => el('message').style.display = 'none', 4500); }
+function pause() { playing = false; clearInterval(timer); el('play').textContent = '▶ Play'; }
+function tick() { if (game.events.length > 11000) {
+    pause();
+    message('This story has reached its event limit. Save it and start a new world.');
+    return;
+} step(game); render(); }
+function current() { return replayAt === null ? game.world : replay(game, replayAt); }
+function render() {
+    const w = current(), r = w.residents.find(r => r.id === selected);
+    el('clock').textContent = time(w.tick);
+    el('day-label').textContent = replayAt === null ? 'SEED 42 · LIVE' : 'RECORDED HISTORY';
+    document.body.classList.toggle('storm', w.stormUntil > w.tick);
+    el('weather').innerHTML = w.stormUntil > w.tick ? '☁ <span>Rain over the village<small>The garden is waiting for clear skies</small></span>' : '☀ <span>A little world, unfolding<small>There’s always another story around the corner</small></span>';
+    el('residents').innerHTML = w.residents.map((o, i) => { let p = places[o.location], x = p.x + ((i % 3) - 1) * 3, y = p.y + 9 + Math.floor(i / 3) * 3; if (o.pending?.kind === 'move') {
+        const dest = places[o.pending.target];
+        x = (p.x + dest.x) / 2 + ((i % 3) - 1) * 2;
+        y = (p.y + dest.y) / 2 + 6;
+    } return `<button class="resident ${o.id === selected ? 'selected' : ''}" data-resident="${o.id}" style="left:${x}%;top:${y}%;--resident-color:${o.color}" data-name="${o.name}" aria-label="Inspect ${o.name}, ${esc(o.status)}">${o.name[0]}</button>`; }).join('');
+    el('cast').innerHTML = w.residents.map(o => `<button class="${o.id === selected ? 'active' : ''}" data-resident="${o.id}" aria-label="Inspect ${o.name}" aria-pressed="${o.id === selected}"><span class="avatar" style="--resident-color:${o.color}">${o.name[0]}</span>${o.name}</button>`).join('');
+    el('stats').innerHTML = [['TOWN BUDGET', w.treasury, 'coins'], ['MARKET FOOD', w.shopFood, 'meals'], ['FOOD RESERVE', w.reserve, 'meals'], ['WORKSHOP', w.repaired, '% fixed']].map(([label, value, unit]) => `<div class="stat"><small>${label}</small><strong>${value}<em>${unit}</em></strong></div>`).join('');
+    el('inspector-content').innerHTML = `<div class="profile"><div class="profile-top"><div><h3>${r.name}</h3><span class="role">The ${r.role.toLowerCase()}</span></div><span class="avatar large-avatar" style="--resident-color:${r.color}">${r.name[0]}</span></div><span class="trait">${r.trait}</span><p class="location">⌖ ${places[r.location].name}</p><div class="status">${esc(r.status)}</div><div class="needs">${[['Fullness', 100 - r.hunger], ['Energy', r.energy], ['Health', r.health]].map(([n, v]) => `<div class="need"><span>${n}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join('')}</div><div class="pockets"><span>◈ ${r.money} coins</span><span>♧ ${r.food} meals</span></div><p class="section-label">A LITTLE AMBITION</p><p class="goal">“${r.goal}.”</p><p class="section-label">WHAT ${r.name.toUpperCase()} KNOWS</p><p class="knowledge-note">Personal memories, not the town’s complete story. Testimony records who told them.</p><ul class="memories">${r.beliefs.slice(-15).reverse().map(b => `<li><small>${esc(b.provenance.toUpperCase())} · ${esc(b.source)} · ${time(b.tick)} · ${esc(b.eventId)}</small>${esc(b.text)}</li>`).join('') || '<li>No memories yet. Press play to start the day.</li>'}</ul><p class="section-label">CONNECTIONS</p><div class="relationships">${Object.entries(r.relationships).map(([id, v]) => `${esc(id)} · ${v} shared moment${v === 1 ? '' : 's'}`).join('<br>') || 'Friendships grow through conversations and kindness.'}</div></div>`;
+    const rf = el('resident-filter').value, tf = el('type-filter').value, decisions = el('decisions').checked;
+    const events = (replayAt === null ? game.events : game.events.slice(0, replayAt)).filter(e => e.type !== 'clock' && (decisions || e.type !== 'decision') && (rf === 'all' || e.actor === rf || e.recipients.includes(rf)) && (tf === 'all' || (tf === 'intervention' ? ['storm', 'delay', 'donation'].includes(e.type) : e.type === tf))).slice(-60).reverse();
+    el('feed').innerHTML = events.map(e => `<div class="entry"><time>${time(e.tick)}</time><span class="event-icon">${{ talk: '☏', work: '⚒', buy: '♧', storm: '☁', donation: '♡', shipment: '▣', delay: '◷' }[e.type] ?? '·'}</span><div>${esc(e.text)}<span class="sr-only">Event ${e.id}</span></div></div>`).join('') || '<div class="empty">The journal is waiting for its first little moment. Press Play or Step.</div>';
+    el('scrub').max = String(game.events.length);
+    el('scrub').value = String(replayAt ?? game.events.length);
+    el('scrub').disabled = replayAt === null;
+    el('replay-label').textContent = replayAt === null ? 'Live' : `${replayAt} / ${game.events.length}`;
+    el('return').hidden = replayAt === null;
+    for (const b of document.querySelectorAll('[data-intervention],#play,#step'))
+        b.disabled = replayAt !== null;
+}
+el('buildings').innerHTML = Object.entries(places).map(([id, p]) => `<div class="building ${id.includes('home') ? 'home' : id}" style="left:${p.x}%;top:${p.y}%"><span class="structure"></span><small>${p.name}</small></div>`).join('');
+for (const r of game.world.residents)
+    el('resident-filter').insertAdjacentHTML('beforeend', `<option value="${r.id}">${r.name}</option>`);
+document.addEventListener('click', e => { const target = e.target.closest('[data-resident],[data-intervention]'); if (target?.dataset.resident) {
+    selected = target.dataset.resident;
+    render();
+} if (target?.dataset.intervention && replayAt === null) {
+    intervene(game, target.dataset.intervention);
+    render();
+    message('Your nudge is now part of the story.');
+} });
+el('play').onclick = () => { if (playing) {
+    pause();
+    return;
+} playing = true; el('play').textContent = 'Ⅱ Pause'; timer = setInterval(tick, Number(el('speed').value)); };
+el('step').onclick = () => { pause(); tick(); };
+el('speed').onchange = () => { if (playing) {
+    pause();
+    el('play').click();
+} };
+el('reset').onclick = () => { pause(); if (game.events.length && !confirm('Start a fresh village? Save first if you want to keep this story.'))
+    return; game = create(); replayAt = null; render(); };
+el('save').onclick = () => { pause(); const blob = new Blob([save(game)], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = `little-world-day-${Math.floor(game.world.tick / 96) + 1}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); message('World saved. Keep the JSON file to revisit this story.'); };
+el('load').onclick = () => { pause(); el('file').click(); };
+el('file').onchange = async () => { const input = el('file'), file = input.files?.[0]; if (!file)
+    return; try {
+    if (file.size > 40_000_000)
+        throw Error('Choose a save smaller than 40 MB.');
+    const next = load(await file.text());
+    game = next;
+    replayAt = null;
+    render();
+    message('Your village is back, just as you left it.');
+}
+catch (e) {
+    message(`Could not load: ${e.message}`);
+} input.value = ''; };
+el('replay').onclick = () => { pause(); replayAt = 0; render(); };
+el('scrub').oninput = () => { replayAt = Number(el('scrub').value); render(); };
+el('return').onclick = () => { replayAt = null; render(); };
+for (const id of ['resident-filter', 'type-filter', 'decisions'])
+    el(id).onchange = render;
+render();
+</script></body></html>
