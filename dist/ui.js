@@ -1,4 +1,4 @@
-import { create, step, intervene, places, time, load, save, replay } from './engine.js';
+import { create, step, intervene, places, time, load, save, replay, compareMornings } from './engine.js';
 const el = (id) => document.getElementById(id);
 let game = create(), selected = 'ada', playing = false, timer, replayAt = null;
 const esc = (s) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -13,7 +13,7 @@ function current() { return replayAt === null ? game.world : replay(game, replay
 function render() {
     const w = current(), r = w.residents.find(r => r.id === selected);
     el('clock').textContent = time(w.tick);
-    el('day-label').textContent = replayAt === null ? 'SEED 42 · LIVE' : 'RECORDED HISTORY';
+    el('day-label').textContent = replayAt === null ? 'VILLAGE · LIVE' : 'RECORDED HISTORY';
     document.body.classList.toggle('storm', w.stormUntil > w.tick);
     el('weather').innerHTML = w.stormUntil > w.tick ? '☁ <span>Rain over the village<small>The garden is waiting for clear skies</small></span>' : '☀ <span>A little world, unfolding<small>There’s always another story around the corner</small></span>';
     el('residents').innerHTML = w.residents.map((o, i) => { let p = places[o.location], x = p.x + ((i % 3) - 1) * 3, y = p.y + 9 + Math.floor(i / 3) * 3; if (o.pending?.kind === 'move') {
@@ -22,8 +22,8 @@ function render() {
         y = (p.y + dest.y) / 2 + 6;
     } return `<button class="resident ${o.id === selected ? 'selected' : ''}" data-resident="${o.id}" style="left:${x}%;top:${y}%;--resident-color:${o.color}" data-name="${o.name}" aria-label="Inspect ${o.name}, ${esc(o.status)}">${o.name[0]}</button>`; }).join('');
     el('cast').innerHTML = w.residents.map(o => `<button class="${o.id === selected ? 'active' : ''}" data-resident="${o.id}" aria-label="Inspect ${o.name}" aria-pressed="${o.id === selected}"><span class="avatar" style="--resident-color:${o.color}">${o.name[0]}</span>${o.name}</button>`).join('');
-    el('stats').innerHTML = [['TOWN BUDGET', w.treasury, 'coins'], ['MARKET FOOD', w.shopFood, 'meals'], ['FOOD RESERVE', w.reserve, 'meals'], ['WORKSHOP', w.repaired, '% fixed']].map(([label, value, unit]) => `<div class="stat"><small>${label}</small><strong>${value}<em>${unit}</em></strong></div>`).join('');
-    el('inspector-content').innerHTML = `<div class="profile"><div class="profile-top"><div><h3>${r.name}</h3><span class="role">The ${r.role.toLowerCase()}</span></div><span class="avatar large-avatar" style="--resident-color:${r.color}">${r.name[0]}</span></div><span class="trait">${r.trait}</span><p class="location">⌖ ${places[r.location].name}</p><div class="status">${esc(r.status)}</div><div class="needs">${[['Fullness', 100 - r.hunger], ['Energy', r.energy], ['Health', r.health]].map(([n, v]) => `<div class="need"><span>${n}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join('')}</div><div class="pockets"><span>◈ ${r.money} coins</span><span>♧ ${r.food} meals</span></div><p class="section-label">A LITTLE AMBITION</p><p class="goal">“${r.goal}.”</p><p class="section-label">WHAT ${r.name.toUpperCase()} KNOWS</p><p class="knowledge-note">Personal memories, not the town’s complete story. Testimony records who told them.</p><ul class="memories">${r.beliefs.slice(-15).reverse().map(b => `<li><small>${esc(b.provenance.toUpperCase())} · ${esc(b.source)} · ${time(b.tick)} · ${esc(b.eventId)}</small>${esc(b.text)}</li>`).join('') || '<li>No memories yet. Press play to start the day.</li>'}</ul><p class="section-label">CONNECTIONS</p><div class="relationships">${Object.entries(r.relationships).map(([id, v]) => `${esc(id)} · ${v} shared moment${v === 1 ? '' : 's'}`).join('<br>') || 'Friendships grow through conversations and kindness.'}</div></div>`;
+    el('stats').innerHTML = [[w.wagesPaused ? 'BUDGET · WAGES PAUSED' : 'TOWN BUDGET', w.treasury, 'coins'], ['MARKET FOOD', w.shopFood, 'meals'], ['FOOD RESERVE', w.reserve, 'meals'], ['WORKSHOP', w.repaired, '% fixed']].map(([label, value, unit]) => `<div class="stat"><small>${label}</small><strong>${value}<em>${unit}</em></strong></div>`).join('');
+    el('inspector-content').innerHTML = `<div class="profile"><div class="profile-top"><div><h3>${r.name}</h3><span class="role">The ${r.role.toLowerCase()}</span></div><span class="avatar large-avatar" style="--resident-color:${r.color}">${r.name[0]}</span></div><span class="trait">${r.trait} · shapes decisions</span><p class="location">⌖ ${places[r.location].name}</p><div class="status">${esc(r.status)}</div><p class="section-label">WHY THIS CHOICE?</p><p class="decision-reason">${esc(r.lastDecision ?? 'A new morning. Time to see what the day brings.')}</p><div class="needs">${[['Fullness', 100 - r.hunger], ['Energy', r.energy], ['Health', r.health]].map(([n, v]) => `<div class="need"><span>${n}</span><div class="bar"><span style="width:${v}%"></span></div><span>${v}%</span></div>`).join('')}</div><div class="pockets"><span>◈ ${r.money} coins</span><span>♧ ${r.food} meals</span></div><p class="section-label">A LITTLE AMBITION</p><p class="goal">“${r.goal}.”</p><p class="section-label">WHAT ${r.name.toUpperCase()} KNOWS</p><p class="knowledge-note">Personal memories, not the town’s complete story. Testimony records who told them.</p><ul class="memories">${r.beliefs.slice(-15).reverse().map(b => `<li><small>${esc(b.provenance.toUpperCase())} · ${esc(b.source)} · ${time(b.tick)} · ${esc(b.eventId)}</small>${esc(b.text)}</li>`).join('') || '<li>No memories yet. Press play to start the day.</li>'}</ul><p class="section-label">CONNECTIONS</p><div class="relationships">${Object.entries(r.relationships).map(([id, v]) => `${esc(id)} · ${v} shared moment${v === 1 ? '' : 's'}`).join('<br>') || 'Friendships grow through conversations and kindness.'}</div></div>`;
     const rf = el('resident-filter').value, tf = el('type-filter').value, decisions = el('decisions').checked;
     const events = (replayAt === null ? game.events : game.events.slice(0, replayAt)).filter(e => e.type !== 'clock' && (decisions || e.type !== 'decision') && (rf === 'all' || e.actor === rf || e.recipients.includes(rf)) && (tf === 'all' || (tf === 'intervention' ? ['storm', 'delay', 'donation'].includes(e.type) : e.type === tf))).slice(-60).reverse();
     el('feed').innerHTML = events.map(e => `<div class="entry"><time>${time(e.tick)}</time><span class="event-icon">${{ talk: '☏', work: '⚒', buy: '♧', storm: '☁', donation: '♡', shipment: '▣', delay: '◷' }[e.type] ?? '·'}</span><div>${esc(e.text)}<span class="sr-only">Event ${e.id}</span></div></div>`).join('') || '<div class="empty">The journal is waiting for its first little moment. Press Play or Step.</div>';
@@ -78,3 +78,23 @@ el('return').onclick = () => { replayAt = null; render(); };
 for (const id of ['resident-filter', 'type-filter', 'decisions'])
     el(id).onchange = render;
 render();
+el('compare').onclick = () => {
+    pause();
+    const b = el('compare');
+    b.disabled = true;
+    b.textContent = 'Watching two days…';
+    setTimeout(() => {
+        try {
+            const scarce = el('scarce').checked, { normal, delayed } = compareMornings(game.initial, scarce);
+            const rows = [['Meals eaten', normal.mealsEaten, delayed.mealsEaten], ['Meals shared', normal.mealsShared, delayed.mealsShared], ['Conversations', normal.conversations, delayed.conversations], ['Hours hungry, all neighbors combined', normal.hungryHours, delayed.hungryHours], ['Market meals left', normal.marketFood, delayed.marketFood], ['Town coins left', normal.budget, delayed.budget], ['Workshop repaired (%)', normal.repaired, delayed.repaired]];
+            el('comparison-result').innerHTML = `<p class="knowledge-note">Two separate 24-hour runs from your world’s original snapshot, using the same random state and rules. ${scarce ? 'Both start with 2 market meals, an empty reserve, and hungry residents carrying no food.' : 'Both use the original food supplies.'} Only the second run gets an eight-hour shipment delay. Your live village is unchanged. “Hungry” means hunger of 70 or higher.</p><div class="table-scroll"><table><caption class="sr-only">Two mornings comparison</caption><thead><tr><th scope="col">What happened</th><th scope="col">Normal delivery</th><th scope="col">8-hour delay</th></tr></thead><tbody>${rows.map(([label, a, b]) => `<tr><th scope="row">${label}</th><td>${a}</td><td>${b}</td></tr>`).join('')}</tbody></table></div><p class="knowledge-note">Meals shared by neighbor (normal / delayed): ${game.initial.residents.map(r => `${r.name} ${normal.gifts[r.id]} / ${delayed.gifts[r.id]}`).join(' · ')}.</p>`;
+        }
+        catch (error) {
+            message(`Comparison failed: ${error.message}`);
+        }
+        finally {
+            b.disabled = false;
+            b.textContent = 'Compare two days →';
+        }
+    }, 30);
+};

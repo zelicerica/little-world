@@ -40,21 +40,40 @@ Then visit http://localhost:4173. This serving command is provided for local use
 - `src/engine.ts`: types, scenario constants, seeded clock, legal actions, offline decisions, events, knowledge views, validation, compact saves, and replay.
 - `src/ui.ts`: map, resident inspector, journal filters, controls, interventions, and file handling.
 - `src/style.css`: responsive illustrated map and interface; reduced-motion support.
-- `tests/engine.test.mjs`: ten tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
+- `tests/engine.test.mjs`: 21 tests covering determinism, accounting, private knowledge, invalid actions, persistence, replay, shipment consequences, and malicious/malformed input.
 - `scripts/build.mjs`: static asset copying and standalone HTML packaging.
 
-Actions take one or two ticks. The engine queues and completes them in stable resident order. Money transfers between residents and the town; meals and supplies have recorded external sources or consumption. Workshop repair uses supplies. Garden harvests stop during storms. The courier moves reserve meals into the market. Residents become uncomfortable when hungry; health bottoms out at 30 and nobody dies.
+Actions take one or two ticks. The engine queues and completes them in stable resident order. Money transfers between residents and the town; meals and supplies have recorded external sources or consumption. Workshop repair uses supplies. Garden harvests stop during storms. The courier visits the garden, earns Emi’s trust through conversations, loads up to three reserve meals, then travels to the market and unloads them. Those meals remain in his inventory during travel and can be eaten if he gets hungry. Residents become uncomfortable when hungry; health bottoms out at 30 and nobody dies.
 
-A resident policy receives only their own state, the visible needs and food of co-located neighbors, time, and legal action choices. It does not receive town state or other residents' memories. Private shipment-delay information is initially visible to residents at the market; a donation is visible at town hall. Storms are public. Co-located testimony preserves the speaker and original event reference.
+A resident policy receives only their own state, the visible needs and food of co-located neighbors, time, and legal action choices. It does not receive town state or other residents' memories. Role-specific policies now use local resource observations, trust, and personal conversation history. New observations record a structured topic and numeric amount where relevant. Private shipment-delay information is initially visible to residents at the market; a donation is visible at town hall. Storms are public. Co-located testimony preserves the speaker and original event reference.
 
 Saves are schema version 1. The compact belief pool deduplicates repeated memories. Replay uses recorded state snapshots and never reruns decisions or invokes a model. Imported HTML-sensitive text is escaped; fixed resident metadata and state fields are validated before use.
 
 ## Validation and limits
 
-TypeScript checks, static build, all ten engine tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
+TypeScript checks, static build, all 21 engine tests, and a full simulated day passed. Automated checks cover core simulation behavior. The user confirmed that browser appearance and interaction work on October 18, 2026. Automated browser interaction and visual QA were not run: the environment did not expose the Sites browser-control skill.
 
-This prototype uses transparent offline rules, not an LLM. Behavior is deliberately simple. Policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
+This prototype uses transparent offline rules, not an LLM. Personalities affect priorities, but policies do not yet negotiate prices, invent plans, or generate free-form dialogue. The seeded random state is persisted for future richer policies; current decisions use stable rules. The player sees an omniscient view.
 
 Replay retains snapshots in memory and is intended for short stories. The interface stops before 12,000 events; imported saves are limited to 40 MB. Save, then reset for a fresh story. No automatic background persistence, undo branching, live model provider, or cloud deployment is implemented.
 
-Next useful extension: improve resident schedules and decision variety, then add an optional server-side model adapter after explicitly choosing a provider and spending budget.
+Next useful extension: longer-term schedules and richer negotiation, then an optional server-side model adapter after explicitly choosing a provider and spending budget.
+
+## Version 1.1 — personalities that change decisions
+
+The resident inspector now shows **Why this choice?**. Enable **Decisions** in the journal to see recorded explanations beside actions. These are short rule explanations, not model reasoning.
+
+| Resident | Behavior |
+| --- | --- |
+| Ada | Tries to keep three personal meals, but stops building that buffer when only two market meals remain. Shares shortage news with nearby neighbors. |
+| Cleo | May give her last meal to a hungry neighbor before eating herself, unless her own hunger is at least 85. |
+| Emi | Shares personal spare meals only with trusted neighbors. Releases garden reserves to Dev only after two shared moments, while both are at the garden. Waits out storms. |
+| Dev | Visits Emi, builds trust, carries reserve meals to the market, and shares learned information with its source preserved. An hourly conversation cooldown leaves time for deliveries. |
+| Ben | When he observes an unfinished workshop without supplies, goes to town hall and tells Finn. Waits for the funding decision, then returns to repairs. Stops consuming supplies when repairs are complete. |
+| Finn | Pauses town wages below 40 coins and resumes at 60. After hearing a recent supply-shortage report, may buy six supplies for 12 coins while preserving the 40-coin reserve. |
+
+Pausing wages allows productive work to continue without pay; normal wages remain two coins per completed work action. Outside supply purchases explicitly record coins leaving the town and supplies entering. Procurement is immediate in this prototype. Trust currently counts shared conversations and gifts, rather than modeling nuanced reputation. Residents do not receive distant residents’ memories or global balances in their decision views.
+
+**Compare two days** runs two isolated 24-hour trials from the original world snapshot. One receives an eight-hour shipment delay. By default both start with two market meals, an empty reserve, and hungry residents carrying no meals. Turn off the shortage option to use the original supplies. The live world and its history are unchanged. The table reports meals eaten/shared, conversations, market food, budget, repair progress, and resident-hours at hunger 70 or above.
+
+Existing schema-version-1 saves remain loadable. Old recorded history replays as saved; future ticks use the new policies. Version 1.1’s build, TypeScript checks, and all 21 tests pass. Browser appearance and interaction of version 1.0 were user-confirmed; version 1.1 visual/browser interaction has not been verified here.
