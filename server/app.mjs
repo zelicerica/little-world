@@ -17,10 +17,12 @@ export function createApp({config=readConfig(),provider,clock=()=>Date.now()}={}
  const status=()=>({provider:'OpenAI',model:config.model,ready:config.enabled&&!!config.apiKey,maxRequests:config.maxRequests,...stats,nonce});
  const server=createServer(async(req,res)=>{
   const host=req.headers.host??'',origin=req.headers.origin;
-  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control','no-store');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'");
+  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control','no-store');res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+  res.setHeader('Referrer-Policy','no-referrer');res.setHeader('Cross-Origin-Resource-Policy','same-origin');
   const send=(code,body)=>{res.writeHead(code,{'Content-Type':'application/json'});res.end(JSON.stringify(body));};
+  if(req.headers['sec-fetch-site']==='cross-site'){send(403,{error:'Local same-origin requests only.'});return;}
   if(!/^(localhost|127\.0\.0\.1):\d+$/.test(host)||(origin&&origin!==`http://${host}`)){send(403,{error:'Local same-origin requests only.'});return;}
-  const path=new URL(req.url??'/',`http://${host}`).pathname;
+  let path;try{if(!req.url?.startsWith('/')||req.url.startsWith('//'))throw Error('Invalid target');path=new URL(req.url,`http://${host}`).pathname;}catch{send(400,{error:'Invalid request target.'});return;}
   if(req.method==='GET'&&path==='/api/status'){send(200,status());return;}
   if(req.method==='POST'&&path==='/api/decide'){
    const token=req.headers['x-little-world-token'];

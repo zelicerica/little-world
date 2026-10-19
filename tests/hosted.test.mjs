@@ -80,12 +80,13 @@ test('disabled or unconfigured servers never call a provider',async t=>{
  }
 });
 test('real AI SDK adapter constructs a stateless structured Responses request through mocked transport',async()=>{
+ const oldBase=process.env.OPENAI_BASE_URL;process.env.OPENAI_BASE_URL='https://untrusted.invalid/v1';
  let request;
  const provider=makeOpenAIProvider({...config(),model:'gpt-5.4-mini',maxOutputTokens:256},{fetch:async(url,options)=>{
-  assert.equal(String(url),'https://api.openai.com/v1/responses');request=JSON.parse(options.body);
+  assert.equal(String(url),'https://api.openai.com/v1/responses');assert.equal(options.redirect,'error');request=JSON.parse(options.body);
   return new Response(JSON.stringify({id:'resp_mock',object:'response',created_at:1,model:'gpt-5.4-mini',status:'completed',output:[{id:'msg_mock',type:'message',role:'assistant',status:'completed',content:[{type:'output_text',text:JSON.stringify({actionIndex:0,reason:'Wait and listen.',dialogue:'Hello.'}),annotations:[]}]}],usage:{input_tokens:10,output_tokens:10,total_tokens:20,input_tokens_details:{cached_tokens:0},output_tokens_details:{reasoning_tokens:0}}}),{headers:{'Content-Type':'application/json'}});
  }});
- const output=await provider(prepareHostedContext(devView()),new AbortController().signal);
+ let output;try{output=await provider(prepareHostedContext(devView()),new AbortController().signal);}finally{if(oldBase===undefined)delete process.env.OPENAI_BASE_URL;else process.env.OPENAI_BASE_URL=oldBase;}
  assert.equal(output.choice.actionIndex,0);assert.equal(request.store,false);assert.equal(request.max_output_tokens,256);assert.equal(request.reasoning.effort,'none');assert.equal(request.text.format.type,'json_schema');assert.equal(request.text.format.strict,true);assert.equal(request.previous_response_id,undefined);assert.equal(request.tools,undefined);
 });
 
@@ -96,4 +97,19 @@ test('all six HTTP requests use separate private contexts and one shared server 
  for(const r of g.world.residents){const reply=await app.post(hostedRequest(view(g.world,r))).then(r=>r.json());assert.equal(reply.ok,true);now+=1100;}
  assert.deepEqual(seen,['ada','ben','cleo','dev','emi','finn']);assert.equal(app.status().attempts,6);
  assert.equal((await app.post().then(r=>r.json())).reason,'budget');assert.equal(seen.length,6);
+});
+
+test('malformed request targets are rejected without stopping the local server',async t=>{
+ const app=await running(t,{provider:async()=>assert.fail('No provider call expected')});
+ for(const path of ['http://[invalid','//[invalid']){
+  const code=await new Promise((resolve,reject)=>{const req=httpRequest(`${app.base}/`,{path},res=>{res.resume();resolve(res.statusCode);});req.on('error',reject);req.end();});assert.equal(code,400);
+ }
+ assert.equal((await fetch(`${app.base}/api/status`)).status,200);assert.equal(app.status().attempts,0);
+});
+test('cross-site navigations are denied and sensitive files are excluded from static serving',async t=>{
+ const app=await running(t,{provider:async()=>assert.fail('No provider call expected')});
+ assert.equal((await fetch(`${app.base}/api/status`,{headers:{'Sec-Fetch-Site':'cross-site'}})).status,403);
+ for(const path of ['/.env','/.env.example','/.env.local','/.git/config','/package-lock.json','/server/app.mjs','/%2e%2e/.env.local'])assert.equal((await fetch(app.base+path)).status,404,path);
+ const response=await fetch(app.base);assert.ok(response.headers.get('content-security-policy').includes("base-uri 'none'"));assert.equal(response.headers.get('referrer-policy'),'no-referrer');
+ assert.ok(!(await response.text()).includes(config().apiKey));
 });

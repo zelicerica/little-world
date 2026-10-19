@@ -14,3 +14,14 @@ test('reject malformed, oversized, mismatched, and unsafe saves',()=>{assert.thr
 test('storm stops harvest and generosity transfers rather than creates meals',()=>{const g=create();const emi=g.world.residents.find(r=>r.id==='emi');emi.location='garden';g.world.tick=35;intervene(g,'storm');const reserve=g.world.reserve;act(g,legal(g.world,emi).find(a=>a.kind==='work'));step(g);step(g);assert.equal(g.world.reserve,reserve);const a=g.world.residents[0],b=g.world.residents[1];a.pending=null;b.pending=null;b.location=a.location;const before=sum(g.world).food;const food=b.food;act(g,legal(g.world,a).find(x=>x.kind==='give'&&x.target==='ben'));step(g);assert.equal(b.food,food+1);assert.equal(sum(g.world).food,before);});
 
 test('compact save preserves all beliefs, provenance, replay and continued decisions',()=>{const g=day(create(),96);const encoded=save(g);assert.ok(encoded.length<JSON.stringify(g).length/3);const restored=load(encoded);assert.deepEqual(restored,g);assert.deepEqual(replay(restored),g.world);step(g);step(restored);assert.deepEqual(restored,g);});
+
+test('compact saves reject memory amplification before expanding references',()=>{
+ const raw=JSON.parse(save(create()));raw.beliefPool=[{id:'b1',text:'known fact',source:'ada',eventId:'e1',tick:28,provenance:'observation'}];
+ const snapshot=structuredClone(raw.initial);for(const r of snapshot.residents)r.beliefs=Array(5000).fill(0);
+ raw.events=Array.from({length:67},()=>({after:snapshot}));
+ const text=JSON.stringify(raw);assert.ok(text.length<5_000_000);assert.throws(()=>load(text),/too much history/);
+});
+test('saves reject oversized individual memory text',()=>{
+ const g=create();g.initial.residents[0].beliefs.push({id:'b1',text:'x'.repeat(2001),source:'ada',eventId:'e1',tick:28,provenance:'observation'});
+ assert.throws(()=>load(JSON.stringify(g)),/belief/);
+});

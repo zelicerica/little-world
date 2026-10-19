@@ -582,7 +582,7 @@ function assertWorld(w) {
         if (r.hunger > 100 || r.energy > 100 || r.health > 100 || typeof r.status !== 'string' || !Array.isArray(r.beliefs) || !r.relationships || typeof r.relationships !== 'object')
             throw Error('Invalid resident needs or memories.');
         for (const b of r.beliefs)
-            if (!b || typeof b.id !== 'string' || typeof b.text !== 'string' || typeof b.source !== 'string' || typeof b.eventId !== 'string' || !Number.isSafeInteger(b.tick) || !['observation', 'testimony', 'inference'].includes(b.provenance))
+            if (!b || typeof b.id !== 'string' || typeof b.text !== 'string' || b.text.length > 2000 || typeof b.source !== 'string' || typeof b.eventId !== 'string' || !Number.isSafeInteger(b.tick) || !['observation', 'testimony', 'inference'].includes(b.provenance))
                 throw Error('Invalid belief provenance.');
         for (const b of r.beliefs) {
             if (b.topic !== undefined && !['food', 'supplies', 'budget', 'shipment', 'storm', 'donation', 'harvest', 'fridge'].includes(b.topic))
@@ -636,13 +636,22 @@ export function load(text) {
     if (raw?.encoding === 'belief-pool-v1') {
         if (!Array.isArray(raw.beliefPool) || raw.beliefPool.length > 50000 || !Array.isArray(raw.events) || raw.events.length > 12000)
             throw Error('Invalid memory pool or event limit.');
-        const restore = (w) => { if (!w || !Array.isArray(w.residents))
-            throw Error('Invalid snapshot.'); for (const r of w.residents) {
-            if (!Array.isArray(r.beliefs) || r.beliefs.length > 5000)
-                throw Error('Invalid memory list.');
+        let references = 0;
+        const snapshots = [raw.initial, raw.world, ...raw.events.map((e) => e?.after)];
+        for (const w of snapshots) {
+            if (!w || !Array.isArray(w.residents) || w.residents.length !== 6)
+                throw Error('Invalid snapshot.');
+            for (const r of w.residents) {
+                if (!r || !Array.isArray(r.beliefs) || r.beliefs.length > 5000)
+                    throw Error('Invalid memory list.');
+                references += r.beliefs.length;
+            }
+            if (references > 2_000_000)
+                throw Error('Save expands to too much history. Choose a shorter story.');
+        }
+        const restore = (w) => { for (const r of w.residents)
             r.beliefs = r.beliefs.map((i) => { if (!Number.isSafeInteger(i) || i < 0 || i >= raw.beliefPool.length)
-                throw Error('Invalid memory reference.'); return raw.beliefPool[i]; });
-        } };
+                throw Error('Invalid memory reference.'); return raw.beliefPool[i]; }); };
         restore(raw.initial);
         restore(raw.world);
         for (const e of raw.events)

@@ -104,3 +104,16 @@ No live or paid model call was made. Request limits are not a dollar budget and 
 - [ ] User-observed hosted crisis comparison.
 
 The user confirmed version 1.3 live hosted requests locally. No paid model call was made here. Version 1.4 browser visual QA remains unverified. Next action: update the full project while preserving the user's private environment file, restart, and inspect six-resident hosted journal entries before choosing a bounded comparison.
+
+## 9. Pre-run security review and usage guide — version 1.4.1
+
+- [x] Rewrite README around actual offline/hosted setup, all controls, shared limits, comparison consent, trial/report exports, updates, and key handling.
+- [x] Record the AI-proposed project origin and collaborative testing.
+- [x] Trace credential handling and scan tracked files/local historical blobs; compare GitHub main's historical tree hashes and inspect its initial README.
+- [x] Pin the provider URL and disable redirects; handle malformed request targets; bound pooled-save expansion and memory text.
+- [x] Harden cross-site fetch handling and response policies; test sensitive static paths.
+- [x] Document findings, threat boundaries, and limits in SECURITY.md; add a reusable redacted credential scanner.
+- [x] All 56 tests, type/build checks, standalone script syntax, and secret scan pass. npm audit reports zero known vulnerabilities.
+- [ ] User browser/Windows check of 1.4.1; no live paid calls were made during this review.
+
+Next action: download the reviewed full project, preserve the private local environment file, restart, and verify hosted resident journal entries. Repository visibility has not been changed.

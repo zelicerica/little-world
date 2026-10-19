@@ -8,7 +8,9 @@ export function systemPrompt(id){
 export function validateChoice(value,allowed){return !!value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).every(k=>['actionIndex','reason','dialogue'].includes(k))&&Number.isInteger(value.actionIndex)&&allowed.includes(value.actionIndex)&&typeof value.reason==='string'&&value.reason.length>0&&value.reason.length<=240&&typeof value.dialogue==='string'&&value.dialogue.length<=160;}
 export function choiceSchema(indices){return {type:'object',additionalProperties:false,required:['actionIndex','reason','dialogue'],properties:{actionIndex:{type:'integer',enum:indices},reason:{type:'string',minLength:1,maxLength:240},dialogue:{type:'string',maxLength:160}}};}
 export function makeOpenAIProvider(config,options={}){
- const provider=createOpenAI({apiKey:config.apiKey,...(options.fetch?{fetch:options.fetch}:{})});
+ const transport=options.fetch??globalThis.fetch;
+ // Pin credentials to the intended provider, including when an unrelated shell sets OPENAI_BASE_URL.
+ const provider=createOpenAI({apiKey:config.apiKey,baseURL:'https://api.openai.com/v1',fetch:(input,init)=>transport(input,{...init,redirect:'error'})});
  return async(context,signal)=>{
   const allowed=context.actions.map(a=>a.index);
   const result=await generateText({model:provider.responses(config.model),system:systemPrompt(context.self.id),prompt:JSON.stringify(context),reasoning:'none',maxOutputTokens:config.maxOutputTokens,maxRetries:0,abortSignal:signal,providerOptions:{openai:{store:false}},output:Output.object({schema:jsonSchema(choiceSchema(allowed),{validate:value=>validateChoice(value,allowed)?{success:true,value}:{success:false,error:new Error('Malformed resident choice.')}})})});
